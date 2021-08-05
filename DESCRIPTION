@@ -1,0 +1,34 @@
+Package: metaKIN
+Type: Package
+Title: Tools for specifing, running, and tabulating metaSEM models
+Version: 0.0.1
+Author: James Conigrave
+Maintainer: James Conigrave <jamesconigrave@gmail.com>
+Description: Specify meta3 moderation models. Format results into publication-ready tables. Generate forest plots. Publication bias analyses and plotting. Automatic model reports.
+License: GPL-3
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.1.1
+Imports:
+    metaSEM,
+    ggplot2,
+    data.table,
+    cli,
+    dplyr,
+    stringr,
+    crayon,
+    english,
+    glue,
+    rlang,
+    tibble,
+    tidyr,
+    forcats,
+    methods,
+    tidyselect
+Suggests: 
+    testthat,
+    knitr,
+    rmarkdown,
+    metafor,
+    weightr,
+    papaja
