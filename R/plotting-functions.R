@@ -280,7 +280,7 @@ funnel_plot = function(model,
     )
   }
 
-  crit_val <- qnorm(0.975)
+  crit_val <- stats::qnorm(0.975)
 
   data$se = sqrt(data$v)
   estimate = summary(t_model)$coefficients["Intercept","Estimate"]
@@ -433,8 +433,7 @@ moderation_matrix <- function(..., effect_size = "Effect size", moderators = NUL
   cluster_levels <- cluster_levels[cluster_levels != "Baseline"]
   cluster_levels <- c(cluster_levels, "Baseline")
 
-  graph_dat$cluster = factor(graph_dat$cluster, levels = cluster_levels)
-  graph_dat$cluster = forcats::fct_rev(graph_dat$cluster)
+  graph_dat$cluster = factor(graph_dat$cluster, levels = rev(cluster_levels))
 
   # prepare significance -------
 

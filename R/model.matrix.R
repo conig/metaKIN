@@ -15,6 +15,10 @@ meta_matrix <- function(formula, data, intercept = FALSE, warn = TRUE){
                       data = data,
                       na.action = stats::na.omit))
 
+  if(length(stats::na.omit(unique(unlist(model_frame[,-1])))) <= 1){
+    stop("No variance in predictor matrix")
+  }
+
   matrx <- model.matrix2(eval(parse(text = formula)), data = model_frame)
   matrx.invariant <- model.matrix2(eval(parse(text = formula)), data = matrix.invariant)
 
@@ -56,33 +60,39 @@ is_binary = function(x){
 #' get numbers of studies and effect sizes
 #' @param model model to extract kn from
 #' @param matrx predictor matrix to extract kn from
+#' @param .internalData data object
 
-get_kn = function(model, matrx){
-  y <- model$call$y
-  v <- model$call$v
-  cluster <- model$call$cluster
-
-  matrix_call <- list(formula = glue::glue("~{y}+{v}+{cluster}"),
-                      data = model$call$data,
-                      na.action = na.pass)
-  model_frame  <- do.call(stats::model.frame, matrix_call)
-  final_matrix <- stats::na.omit(cbind(model_frame, matrx))
-
-  results <- lapply(colnames(matrx), function(v){
-    if(!is_binary(final_matrix[,v]) | v == "(Intercept)") return(data.frame(moderation = v, k = NA, n = NA))
-    var <- final_matrix[,v]
-    n <- sum(var)
-    k = length(unique(final_matrix[var == 1, as.character(cluster)]))
-
-    data.frame(moderation = v, k = k, n = n)
-
-  })
-
-out <- do.call(rbind, results)
-out$moderation <- gsub("\\(Intercept\\)","Intercept", out$moderation)
-out
+get_kn<- function(model, param_names){
 
 
+  dat <- model$data
+  dat <- dat[,grepl("^x|(cluster)",colnames(dat))]
+  colnames(dat)[2:length(colnames(dat))]  <- param_names
+
+  if(is.null(model$call$incercept.constraints)){
+    dat$Intercept <- 1
+    dat <- dat[,c("cluster", "Intercept", param_names)]
+  }
+
+
+
+  out <- data.frame(moderation = names(dat)[-1])
+
+
+  long_dat <- data.table(tidyr::pivot_longer(dat, -cluster, names_to = "moderation"))[value == 1]
+  long_dat <- long_dat[, .(k = length(unique(cluster)), n = length(value)), by = "moderation"]
+
+  out <- merge(out, long_dat, all.x = TRUE)
+  out[is.na(out)] <- 0
+
+  bin <- is_binary(dat[-1])
+  if("Intercept" %in% names(bin)){
+    bin["Intercept"] <- FALSE
+  }
+
+  out[!bin,c("k","n")] <- NA
+
+  data.frame(out)
 }
 
 #' try_even_harder
@@ -114,9 +124,10 @@ try_even_harder = function(model) {
 #' @param m meta3 object
 #' @param formula formula passed to model.matrix
 #' @param model.name String. Name your model (optional)
+#' @param .envir the environment to run in
 #' @export
 
-mlm <- function(m, formula, model.name = NULL){
+mlm <- function(m, formula, model.name = NULL, .envir){
   formula = as.character(formula)[as.character(formula) != "~"]
   if (!grepl("^~", formula)) {
     formula <-
@@ -132,11 +143,27 @@ mlm <- function(m, formula, model.name = NULL){
   }
 
   call = m$call
-  .internalDat = call$data
-  if(.internalDat == ".internalDat") stop("data cannot be named .internalDat")
+  .dataName = call$data
+  .internalData <- eval(.dataName, envir = .envir)
 
-  matrx_call <- call("meta_matrix", formula = formula, data = .internalDat)
-  matrx <- eval(call("meta_matrix", formula = formula, data = .internalDat, intercept = TRUE, warn = FALSE))
+  m$call$data <- as.name(".internalData")
+
+  if(.dataName == ".dataName") stop("data cannot be named .dataName")
+
+  matrx_call <- call("meta_matrix", formula = formula, data = as.name(".internalData"))
+
+
+  matrx <- eval(
+    call(
+      "meta_matrix",
+      formula = formula,
+      data = as.name(".internalData"),
+      intercept = TRUE,
+      warn = FALSE
+    )
+  )
+
+
 
   includes_intercept = any(grepl("\\(Intercept\\)",colnames(matrx)))
 
@@ -146,6 +173,8 @@ mlm <- function(m, formula, model.name = NULL){
 
   call$x = matrx_call
   call$model.name = model.name
+  call$data <- as.name(".internalData")
+
 
   m_out <- eval(call)
 
@@ -154,11 +183,16 @@ mlm <- function(m, formula, model.name = NULL){
     m_out <- try_even_harder(m_out)
   }
 
-  KN <- get_kn(m_out, matrx)
+  param_names <- colnames(matrx)[!colnames(matrx) %in% "(Intercept)"]
+
+  KN <- get_kn(m_out, param_names)
+
+  m_out$call$data <- .dataName
+  m_out$call$x$data <- .dataName
 
   out <- list(model = m_out,
         anova = stats::anova(m_out, m),
-       parameter_names = colnames(matrx)[!colnames(matrx) %in% "(Intercept)"],
+       parameter_names = param_names,
        k_n = KN)
   class(out) <- "metalm"
   out
@@ -243,6 +277,7 @@ print.mlm_summary = function(x, ...){
 #' @param ... other arguments passed to model.matrix
 
 model.matrix2 <- function(object, data = environment, contrasts.args = NULL, xlev = NULL, ...){
+
   ans <- stats::model.matrix(object, data, contrasts.args, xlev,...)
   factor_names <- names(attr(ans, "contrasts"))
   object_names <- trimws(unlist(strsplit(as.character(object), "\\+")))[-1]

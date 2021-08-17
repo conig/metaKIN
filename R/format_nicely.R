@@ -23,6 +23,7 @@ moderator_info <- function(x){
   slopes$moderator_level = TRUE
   slopes <- merge(slopes, x$k_n, by = "moderation", all.x = TRUE, sort = FALSE)
   out <- data.table::rbindlist(list(overview, slopes), fill = TRUE)
+  out$model <- overview$moderation
   attr(out, "model.name") <- x$model$call$model.name
   out
 
@@ -64,6 +65,11 @@ moderators <- lapply(meta_list$models[2:length(meta_list$models)], moderator_inf
 
 tab <- data.table::rbindlist(append(list(baseline), moderators), fill = TRUE)
 
+if (hide_insig) {
+  sig_mods <- get_sig_moderators(meta_list)
+  tab <- tab[(tab$model %in% c("Baseline", sig_mods) | moderator_level == FALSE), ]
+}
+
 tab$Estimate = digits(transf(tab$Estimate), round)
 tab$SE = digits(tab$SE, round)
 tab$lbound = digits(transf(tab$lbound), round)
@@ -76,8 +82,8 @@ tab$Estimate_formatted[tab$Estimate_formatted == replace] <- NA
 indent <- tab$moderator_level
 
 tab <- tab[, .(Moderation = moderation,
-        k,
-        n,
+        k = digits(k, 0),
+        n = digits(n, 0),
         Estimate_formatted,
         Estimate,
         SE,

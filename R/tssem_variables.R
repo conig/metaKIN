@@ -7,17 +7,17 @@
 #' @param var2 the name of the column containing the second variable
 #' @param cluster the name of the clustering variable
 #' @param data data.frame
-#' @param transform a function to transform individual correlations
+#' @param transf a function to transform individual correlations
 #' @param ni the name of the column containing the sample size
 #' @import data.table
 
-cormat_list = function(yi, vi, ni, var1, var2, cluster, data, transform = NULL){
+cormat_list <- function(yi, vi, ni, var1, var2, cluster, data, transf = NULL){
 
   data = data.table::data.table(data)
   inspect_vars = data[,c(yi,vi,var1,var2,cluster), with = FALSE]
   missing = unlist(lapply(1:nrow(inspect_vars), function(x) any(is.na(inspect_vars[x,]))))
   data = data[!missing, ]
-  vars <- unique(c(data[,var1], data[,var2]))
+  vars <- unique(unlist(c(data[,..var1], data[,..var2])))
 
   make_matrix = function(vars) {
     m = matrix(nrow = length(vars), ncol = length(vars))
@@ -34,15 +34,15 @@ cormat_list = function(yi, vi, ni, var1, var2, cluster, data, transform = NULL){
 
     for(col in seq_along(colnames(m))){
       for(row in seq_along(rownames(m))){
-        # message("row = ",row, "col = ", col)
+        #message("row = ",row, "col = ", col)
         if(col == row){
           m[row, col] = 1
           next
         }
 
-        vars = c(colnames(m)[col], rownames(m)[row])
-        valid_rows = unlist(dat[,var1, with = FALSE]) %in% vars &
-          unlist(dat[,var2, with = FALSE]) %in% vars &
+        current_vars = c(colnames(m)[col], rownames(m)[row])
+        valid_rows = unlist(dat[,var1, with = FALSE]) %in% current_vars &
+          unlist(dat[,var2, with = FALSE]) %in% current_vars &
           !is.na(unlist(dat[,yi, with = FALSE])) &
           !is.na(unlist(dat[,vi, with = FALSE]))
 
@@ -56,8 +56,8 @@ cormat_list = function(yi, vi, ni, var1, var2, cluster, data, transform = NULL){
 
         res <- stats::weighted.mean(y, 1/v)
 
-        if(!is.null(transform)){
-          res <- transform(res)
+        if(!is.null(transf)){
+          res <- transf(res)
         }
         m[row,col] = res
       }
@@ -72,7 +72,9 @@ cormat_list = function(yi, vi, ni, var1, var2, cluster, data, transform = NULL){
   unique_ids = unique(unlist(data[,cluster, with = FALSE]))
 
   dat_list = list()
-  dat_list$data = lapply(unique_ids, function(x) get_matrix(x, vars, data, transform))
+  dat_list$data = lapply(unique_ids, function(x){
+    get_matrix(x, vars = vars, data, transform)})
+
   names(dat_list$data) <- unique_ids
 
   get_n = function(id, ni){
@@ -150,8 +152,9 @@ tssem2_table = function(wls, ..., transf = NULL, t.name = NULL, estimate = "Esti
   vars <- colnames(wls$Cov)
   temp_vars <- paste0("v", 1:length(vars))
 
-
-  reg <- tibble::rownames_to_column(reg)
+  reg$rowname <- rownames(reg)
+  rownames(reg) <- NULL
+  reg <- reg[,c(7,1:6)]
 
   for(i in seq_along(vars)){
     reg$rowname = gsub(vars[i],temp_vars[i],reg$rowname)
@@ -166,7 +169,6 @@ tssem2_table = function(wls, ..., transf = NULL, t.name = NULL, estimate = "Esti
   }
 
   # ---------------------------------------
-
 
   colnames(reg) = c("Predictor", "Estimate","SE","lbound","ubound","z", "p")
 
@@ -214,7 +216,8 @@ tssem2_table = function(wls, ..., transf = NULL, t.name = NULL, estimate = "Esti
 
   reg$Predictor <- sapply(reg$Predictor, repLace)
   reg$outcome <- sapply(reg$outcome, repLace)
-  #to_rowhead(reg, outcome)
+  reg <- to_rowhead(reg, "outcome")
+  attr(reg,"title") <- "TSSEM2 results"
   reg
 
 
@@ -280,3 +283,46 @@ report_tssem2 <- function(x, pattern = NULL) {
   mess
 }
 
+to_rowhead <- function(data, x, italics = FALSE) {
+  row_head = as.character(unlist(data[, x]))
+  new_data = data[, !names(data) %in% x, drop = FALSE]
+  new_data$indent_ = T
+
+  new_head = lapply(seq_along(row_head), function(i) {
+    new_head = T
+    i = unlist(i)
+    if (i > 1) {
+      if (row_head[[i]] == row_head[[i - 1]]) {
+        new_head = F
+      }
+    }
+    return(new_head)
+  })
+
+  new_head = unlist(new_head)
+
+  table_out = lapply(seq_along(new_head), function(i) {
+    if (new_head[i]) {
+      new_row = new_data[i, , drop = FALSE]
+      new_row[, 1] = unlist(data[i, x])
+
+      if(italics){
+        new_row[,1] = paste0("*",new_row[,1],"*")
+      }
+
+      new_row[, 2:ncol(new_row)] = ""
+      new_row$indent_ = F
+
+      return(rbind(new_row, new_data[i,]))
+
+    } else{
+      return(new_data[i, , drop = FALSE])
+    }
+  })
+
+  out <- do.call(rbind, table_out)
+  attr(out, "indent") <- out$indent_
+  out$indent_ <- NULL
+  class(out) <- c("KIN_summary","data.frame")
+  out
+}

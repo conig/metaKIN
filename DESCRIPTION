@@ -13,22 +13,15 @@ Imports:
     metaSEM,
     ggplot2,
     data.table,
-    cli,
     dplyr,
     stringr,
     crayon,
     english,
     glue,
     rlang,
-    tibble,
     tidyr,
-    forcats,
-    methods,
-    tidyselect
+    methods
 Suggests: 
-    testthat,
-    knitr,
-    rmarkdown,
     metafor,
     weightr,
     papaja

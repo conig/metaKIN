@@ -38,7 +38,7 @@ have their grant proposals approved.
 library(metaKIN)
 ```
 
-    ## meta[1m[31mKIN[39m[22m 0.0.1
+    ## meta[1m[31mKIN[39m[22m 0.0.1
 
 ``` r
 dat <- metaSEM::Bornmann07

@@ -34,9 +34,11 @@ moderate = function(m,...,moderators = NULL, debug = FALSE){
   }
   names(elip)[names(elip) == ""] = gsub("\\.{1,}","_",make.names(elip[names(elip) == ""]))
 
+  parent_envir <- parent.frame()
+
   models <- lapply(seq_along(elip), function(x) {
     moderated_model <-
-      mlm(m, formula = elip[x], model.name = names(elip)[x])
+      mlm(m, formula = elip[x], model.name = names(elip)[x], .envir = parent_envir)
     attr(moderated_model, "Baseline") <- FALSE
     moderated_model
   })
@@ -300,7 +302,7 @@ summary.meta_list = function(object, ...){
 
 coef.meta_list <- function(object, ...){
 
-  crit_val <- qnorm(.975)
+  crit_val <- stats::qnorm(.975)
 
  effects <-
     data.table::data.table(object$models$Baseline$data)[, .(
@@ -348,9 +350,42 @@ coef.meta_list <- function(object, ...){
 
 data.table::rbindlist(list(baseline, moderators, effects), fill = TRUE)
 
+}
 
+#' print.KIN_summary
+#' @param object meta_list object
+#' @param ... additional arguments passed to format_nicely
+#' @export
 
+print.KIN_summary = function(object, ...){
+  tab <- object
+  tab$Predictor[attr(tab, "indent")] <- paste0("--",tab$Predictor[attr(tab, "indent")])
+  names(tab) <-gsub("[$^{}_]","", names(tab))
 
+  capture_simply = function(cols, right) utils::capture.output(print.data.frame(tab[,cols, drop = FALSE], right = right, row.names = FALSE))
 
+  col1 <- trimws(capture_simply(1, FALSE), which = "left")
+  others <- capture_simply(-1, TRUE)
+  out <- paste0(col1,others)
+
+  out <- gsub("--","  ",out)
+  width <- nchar(out[1])
+  bar <- paste(rep(crayon::silver("-"), width),collapse = "")
+  out <- gsub("\\-(?![0-9])",crayon::silver("-"),out, perl = TRUE)
+  vred <- crayon::make_style(grDevices::rgb(1,.2,.2))
+  out <- gsub("\\-(?=[0-9])",vred("-"),out, perl = TRUE)
+
+  cat(crayon::blue(attr(object,"title")))
+  cat("\n")
+  cat(bar)
+  cat("\n")
+  cat(out[1])
+  cat("\n")
+  cat(bar)
+  cat("\n")
+  cat(paste(out[-1], collapse = "\n"))
+  cat("\n")
+  cat(bar)
+  cat("\n")
 }
 

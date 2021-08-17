@@ -2,6 +2,7 @@
 
 S3method(coef,meta_list)
 S3method(plot,meta_list)
+S3method(print,KIN_summary)
 S3method(print,meta_list)
 S3method(print,mlm_summary)
 S3method(summary,meta_list)

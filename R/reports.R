@@ -59,14 +59,26 @@ report_n = function(x, rmarkdown = FALSE){
 
 }
 
-report_baseline = function(x, rmarkdown = FALSE, round = 2, transf = NULL){
+report_baseline = function(x, rmarkdown = FALSE, round = 2, transf = function(x) x){
   call = match.call()
   envir = sys.parent()
-  if(is.null(transf)) transf <- as.name("function(x) x")
-  if(!methods::is(x, "name")) x <- call$x
-  if(!methods::is(transf, "name")) transf <- call$transf
 
- stat_est = rmarkdown_wrap(glue::glue('get_val({x}, "estimate95", round = {round}, transf = {transf})'),    rmarkdown = rmarkdown, envir = envir)
+
+  if(!rmarkdown){
+    stat_est <- get_val(x, "estimate95", round = round, transf = transf)
+  }else{
+    if(is.null(transf)) transf <- as.name("function(x) x")
+    if (!methods::is(x, "name"))
+      x <- call$x
+    if (!methods::is(transf, "name"))
+      transf <- call$transf
+    stat_est = rmarkdown_wrap(
+      glue::glue('get_val({x}, "estimate95", round = {round}, transf = {transf})'),
+      rmarkdown = rmarkdown,
+      envir = envir)
+  }
+
+
   mess = glue::glue("The pooled effect size was {stat_est}.")
   mess
 }
@@ -159,15 +171,20 @@ return(mess)
 #' @param threePSM a bool. Should publication bias be tested with weightr::weightfunct
 #' @export report
 
-report = function(meta_list,..., rmarkdown = FALSE, digits = 2, transf = NULL, threePSM = FALSE){
+report = function(meta_list,..., rmarkdown = FALSE, digits = 2, transf = function(x) x, threePSM = FALSE){
 call = match.call()
 
-elip = sapply(substitute(list(...)),deparse)[-1]
-options = c("n","q","baseline","i2","moderators")
-if(threePSM) options = c(options, "threePSM")
 
-filt = tidyselect::vars_select(options, tidyselect::all_of(elip))
-if(length(filt) == 0) filt = options
+
+elip = unname(sapply(rlang::enexprs(...), deparse))
+
+options <- c("n","q","baseline","i2","moderators")
+
+if(length(elip) == 0) elip <- options
+
+options <- options[options %in% elip]
+
+if(threePSM) options = c(options, "threePSM")
 
 mess = list(
   n = report_n(meta_list, rmarkdown = rmarkdown),
@@ -186,12 +203,17 @@ if(threePSM){
   mess$threePSM = report_3psm(call$meta_list, round = 2, transf = transf)
 }
 
-mess = paste(mess[filt], collapse = " ")
-mess = gsub("call\\$transform","NULL",mess)
+mess = paste(mess[options], collapse = " ")
+mess = gsub("call\\$transf","NULL", mess)
 
 if(rmarkdown){
   mess <- gsub("meta_list", call$meta_list, mess)
-  return(cat(mess))
+  mess <-
+    gsub("transf = transf",
+         glue::glue("transf = {deparse(call$transf)}"),
+         mess)
+  clipr::write_clip(mess)
+  return(cat(crayon::blue("<script sent to clipboard>")))
 }else{
   return(mess)
 }

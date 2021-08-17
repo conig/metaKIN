@@ -4,7 +4,7 @@
 \alias{cormat_list}
 \title{cormat_list}
 \usage{
-cormat_list(yi, vi, ni, var1, var2, cluster, data, transform = NULL)
+cormat_list(yi, vi, ni, var1, var2, cluster, data, transf = NULL)
 }
 \arguments{
 \item{yi}{correlation effect}
@@ -21,7 +21,7 @@ cormat_list(yi, vi, ni, var1, var2, cluster, data, transform = NULL)
 
 \item{data}{data.frame}
 
-\item{transform}{a function to transform individual correlations}
+\item{transf}{a function to transform individual correlations}
 }
 \description{
 Generate a list of correlation matrices for tssem
