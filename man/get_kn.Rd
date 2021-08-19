@@ -4,12 +4,14 @@
 \alias{get_kn}
 \title{get_kn}
 \usage{
-get_kn(model, matrx)
+get_kn(model, param_names)
 }
 \arguments{
 \item{model}{model to extract kn from}
 
 \item{matrx}{predictor matrix to extract kn from}
+
+\item{.internalData}{data object}
 }
 \description{
 get numbers of studies and effect sizes

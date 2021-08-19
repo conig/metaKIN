@@ -15,7 +15,8 @@ format_nicely(
   p_digits = 3,
   leading_zero = FALSE,
   ci_sep = ", ",
-  include_i2 = FALSE
+  include_i2 = FALSE,
+  replace = c(`_` = " ")
 )
 }
 \arguments{
@@ -40,6 +41,8 @@ format_nicely(
 \item{ci_sep}{separator for confidence intervals}
 
 \item{include_i2}{A bool, should i2 be included next to baseline?}
+
+\item{replace}{a vector with names included. gsub will be applied to the moderation column such that the vector's names are replaced with the vector's contents}
 }
 \description{
 Formats a list of moderated meta3 objects into a data.frame which can be used as a table in a LaTex document

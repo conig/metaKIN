@@ -378,13 +378,16 @@ forest_height = function(meta3_plot, slope = .12, intercept = .52){
 #' @param null_value a scalar indicating non-significance (where the dashed line will be drawn).
 #' @param transf function to transform values
 #' @param leading_zero when true, leading zeros are allowed on the x-axis
+#' @param black list of outcome names containing their moderators
 #' @import ggplot2 data.table
 #' @export
 
 moderation_matrix <- function(..., effect_size = "Effect size", moderators = NULL,
-                              null_value = NULL, transf = NULL, leading_zero = TRUE){
+                              null_value = NULL, transf = NULL, leading_zero = TRUE,
+                              black = NULL){
 
   models <- list(...)
+  #return(models)
   if(is.null(names(models))) stop("All models must be named within the moderation_matrix function call")
 
   dat_list <- lapply(models, function(x) stats::coef(x))
@@ -447,6 +450,19 @@ moderation_matrix <- function(..., effect_size = "Effect size", moderators = NUL
 
   sig_dat$cluster = factor(sig_dat$cluster, levels = levels(final_dat$cluster))
 
+  if(!is.null(black)){
+
+    black <- unlist(sapply(seq_along(black), function(i){
+      paste(names(black)[i], black[[i]])
+    }))
+
+  sig_dat$black <- paste(sig_dat$outcome, sig_dat$moderation) %in% black
+
+  }else{
+    sig_dat$black <- FALSE
+  }
+
+
   p <- ggplot(final_dat, aes(
     x = y,
     y = cluster,
@@ -457,7 +473,18 @@ moderation_matrix <- function(..., effect_size = "Effect size", moderators = NUL
                        fill = "black",
                        xmin = -Inf, xmax = Inf,
                        ymin = -Inf, ymax = Inf,
-                       alpha = 0.15, inherit.aes = F) + # inherit.aes caused factors to lose order.
+                       alpha = 0.15, inherit.aes = F) +    # inherit.aes caused factors to lose order
+
+    # Add in black rectangles
+
+    ggplot2::geom_rect(data = sig_dat[sig_dat$black,],
+                       fill = "black",
+                       xmin = -Inf, xmax = Inf,
+                       ymin = -Inf, ymax = Inf,
+                       alpha = 1, inherit.aes = F) +
+
+
+
     geom_vline(xintercept = null_value, linetype = 2) + # add in vertical line at 0
     ggplot2::geom_point() + geom_errorbarh(height = .1)+
     ggplot2::facet_grid( # grid by moderation and outcome

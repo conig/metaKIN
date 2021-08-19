@@ -4,7 +4,7 @@
 \alias{mlm}
 \title{mlm}
 \usage{
-mlm(m, formula, model.name = NULL)
+mlm(m, formula, model.name = NULL, .envir)
 }
 \arguments{
 \item{m}{meta3 object}
@@ -12,6 +12,8 @@ mlm(m, formula, model.name = NULL)
 \item{formula}{formula passed to model.matrix}
 
 \item{model.name}{String. Name your model (optional)}
+
+\item{.envir}{the environment to run in}
 }
 \description{
 Meta regression for meta3 objects

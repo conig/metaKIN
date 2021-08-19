@@ -1,7 +1,7 @@
 Package: metaKIN
 Type: Package
 Title: Tools for specifing, running, and tabulating metaSEM models
-Version: 0.0.1
+Version: 0.0.2
 Author: James Conigrave
 Maintainer: James Conigrave <jamesconigrave@gmail.com>
 Description: Specify meta3 moderation models. Format results into publication-ready tables. Generate forest plots. Publication bias analyses and plotting. Automatic model reports.

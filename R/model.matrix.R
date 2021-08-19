@@ -82,7 +82,7 @@ get_kn<- function(model, param_names){
   long_dat <- data.table(tidyr::pivot_longer(dat, -cluster, names_to = "moderation"))[value == 1]
   long_dat <- long_dat[, .(k = length(unique(cluster)), n = length(value)), by = "moderation"]
 
-  out <- merge(out, long_dat, all.x = TRUE)
+  out <- dplyr::left_join(out, long_dat, by = "moderation")
   out[is.na(out)] <- 0
 
   bin <- is_binary(dat[-1])

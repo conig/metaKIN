@@ -9,7 +9,7 @@ report(
   ...,
   rmarkdown = FALSE,
   digits = 2,
-  transf = NULL,
+  transf = function(x) x,
   threePSM = FALSE
 )
 }

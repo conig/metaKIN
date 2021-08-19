@@ -10,7 +10,8 @@ moderation_matrix(
   moderators = NULL,
   null_value = NULL,
   transf = NULL,
-  leading_zero = TRUE
+  leading_zero = TRUE,
+  black = NULL
 )
 }
 \arguments{
@@ -25,6 +26,8 @@ moderation_matrix(
 \item{transf}{function to transform values}
 
 \item{leading_zero}{when true, leading zeros are allowed on the x-axis}
+
+\item{black}{list of outcome names containing their moderators}
 }
 \description{
 Plots a moderation matrix

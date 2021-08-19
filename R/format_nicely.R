@@ -43,70 +43,90 @@ moderator_info <- function(x){
 #' @param leading_zero a bool. If TRUE, p-values will have leading zeros
 #' @param ci_sep separator for confidence intervals
 #' @param include_i2 A bool, should i2 be included next to baseline?
+#' @param replace a vector with names included. gsub will be applied to the moderation column such that the vector's names are replaced with the vector's contents
 #' @import data.table
 #' @export
 
 format_nicely = function(meta_list,
-                          round = 2,
-                          transf = function(x){x},
-                          effect_name = "Estimate",
-                          transf_name = NULL,
-                          hide_insig = TRUE,
-                          escape_pc = FALSE,
-                          p_digits = 3,
-                          leading_zero = FALSE,
-                          ci_sep = ", ",
-                          include_i2 = FALSE) {
-call <- match.call()
+                         round = 2,
+                         transf = function(x) {x},
+                         effect_name = "Estimate",
+                         transf_name = NULL,
+                         hide_insig = TRUE,
+                         escape_pc = FALSE,
+                         p_digits = 3,
+                         leading_zero = FALSE,
+                         ci_sep = ", ",
+                         include_i2 = FALSE,
+                         replace = c("_" = " ")) {
+  call <- match.call()
 
-baseline <- cbind(mlm_overview(meta_list$models[[1]]), just_estimates(meta_list$models[[1]]))
+  baseline <-
+    cbind(mlm_overview(meta_list$models[[1]]),
+          just_estimates(meta_list$models[[1]]))
 
-moderators <- lapply(meta_list$models[2:length(meta_list$models)], moderator_info)
+  moderators <-
+    lapply(meta_list$models[2:length(meta_list$models)], moderator_info)
 
-tab <- data.table::rbindlist(append(list(baseline), moderators), fill = TRUE)
+  tab <-
+    data.table::rbindlist(append(list(baseline), moderators), fill = TRUE)
 
-if (hide_insig) {
-  sig_mods <- get_sig_moderators(meta_list)
-  tab <- tab[(tab$model %in% c("Baseline", sig_mods) | moderator_level == FALSE), ]
-}
-
-tab$Estimate = digits(transf(tab$Estimate), round)
-tab$SE = digits(tab$SE, round)
-tab$lbound = digits(transf(tab$lbound), round)
-tab$ubound = digits(transf(tab$ubound), round)
-
-tab$Estimate_formatted = glue::glue_data(tab, "{Estimate} [{lbound}{ci_sep}{ubound}]")
-replace = glue::glue_data(tab, "{NA} [{NA}{ci_sep}{NA}]")
-tab$Estimate_formatted[tab$Estimate_formatted == replace] <- NA
-
-indent <- tab$moderator_level
-
-tab <- tab[, .(Moderation = moderation,
-        k = digits(k, 0),
-        n = digits(n, 0),
-        Estimate_formatted,
-        Estimate,
-        SE,
-        "$R^2_{(2)}$" = digits(R2_2,round),
-        "$R^2_{(3)}$" = digits(R2_3,round),
-        `$p$` = round_p(p.value,p_digits)
-)]
-
-if(identical(transf,function(x){x})){
-  tab$Estimate <- NULL
-  if(is.null(transf_name)){
-    transf_name <- paste0(effect_name, " [95% CI]")
+  if (hide_insig) {
+    sig_mods <- get_sig_moderators(meta_list)
+    tab <-
+      tab[(tab$model %in% c("Baseline", sig_mods) |
+             moderator_level == FALSE),]
   }
-}
 
-if(is.null(transf_name)){
-   transf_name = deparse(call$transf)
-}
+  tab$Estimate = digits(transf(tab$Estimate), round)
+  tab$SE = digits(tab$SE, round)
+  tab$lbound = digits(transf(tab$lbound), round)
+  tab$ubound = digits(transf(tab$ubound), round)
 
-data.table::setnames(tab, "Estimate", effect_name, skip_absent = TRUE)
-data.table::setnames(tab, "Estimate_formatted", transf_name)
-if(all(is.na(tab$"$R^2_{(3)}$"))) tab$"$R^2_{(3)}$" <- NULL
-tab[is.na(tab)] <- "-"
-attr(tab, "indent") <- indent
-tab
+  tab$Estimate_formatted = glue::glue_data(tab, "{Estimate} [{lbound}{ci_sep}{ubound}]")
+  nullreplace = glue::glue_data(tab, "{NA} [{NA}{ci_sep}{NA}]")
+  tab$Estimate_formatted[tab$Estimate_formatted == nullreplace] <-
+    NA
+
+  indent <- tab$moderator_level
+
+  tab <- tab[, .(
+    Moderation = moderation,
+    k = digits(k, 0),
+    n = digits(n, 0),
+    Estimate_formatted,
+    Estimate,
+    SE,
+    "$R^2_{(2)}$" = digits(R2_2, round),
+    "$R^2_{(3)}$" = digits(R2_3, round),
+    `$p$` = round_p(p.value, p_digits)
+  )]
+
+  if (identical(transf, function(x) {
+    x
+  })) {
+    tab$Estimate <- NULL
+    if (is.null(transf_name)) {
+      transf_name <- paste0(effect_name, " [95% CI]")
+    }
+  }
+
+  if (is.null(transf_name)) {
+    transf_name = deparse(call$transf)
+  }
+
+  if (length(replace) > 0 & !identical(replace, FALSE)) {
+    for (i in seq_along(replace)) {
+      tab$Moderation <-
+        gsub(names(replace)[i], replace[i], tab$Moderation)
+    }
+  }
+
+  data.table::setnames(tab, "Estimate", effect_name, skip_absent = TRUE)
+  data.table::setnames(tab, "Estimate_formatted", transf_name)
+  if (all(is.na(tab$"$R^2_{(3)}$")))
+    tab$"$R^2_{(3)}$" <- NULL
+  tab[is.na(tab)] <- "-"
+  attr(tab, "indent") <- indent
+  tab
 }
