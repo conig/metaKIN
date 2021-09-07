@@ -49,7 +49,7 @@ moderator_info <- function(x){
 
 format_nicely = function(meta_list,
                          round = 2,
-                         transf = function(x) {x},
+                         transf = NULL,
                          effect_name = "Estimate",
                          transf_name = NULL,
                          hide_insig = TRUE,
@@ -60,6 +60,13 @@ format_nicely = function(meta_list,
                          include_i2 = FALSE,
                          replace = c("_" = " ")) {
   call <- match.call()
+
+  if(is.null(transf)){
+    transf <- function(x) x
+    is_transf = FALSE
+  } else{
+    is_transf = TRUE
+  }
 
   baseline <-
     cbind(mlm_overview(meta_list$models[[1]]),
@@ -77,13 +84,13 @@ format_nicely = function(meta_list,
       tab[(tab$model %in% c("Baseline", sig_mods) |
              moderator_level == FALSE),]
   }
-
-  tab$Estimate = digits(transf(tab$Estimate), round)
+  tab$Transformed_estimate = digits(transf(tab$Estimate), round)
+  tab$Estimate = digits(tab$Estimate, round)
   tab$SE = digits(tab$SE, round)
   tab$lbound = digits(transf(tab$lbound), round)
   tab$ubound = digits(transf(tab$ubound), round)
 
-  tab$Estimate_formatted = glue::glue_data(tab, "{Estimate} [{lbound}{ci_sep}{ubound}]")
+  tab$Estimate_formatted = glue::glue_data(tab, "{Transformed_estimate} [{lbound}{ci_sep}{ubound}]")
   nullreplace = glue::glue_data(tab, "{NA} [{NA}{ci_sep}{NA}]")
   tab$Estimate_formatted[tab$Estimate_formatted == nullreplace] <-
     NA
@@ -102,9 +109,7 @@ format_nicely = function(meta_list,
     `$p$` = round_p(p.value, p_digits)
   )]
 
-  if (identical(transf, function(x) {
-    x
-  })) {
+  if (!is_transf) {
     tab$Estimate <- NULL
     if (is.null(transf_name)) {
       transf_name <- paste0(effect_name, " [95% CI]")
@@ -112,7 +117,9 @@ format_nicely = function(meta_list,
   }
 
   if (is.null(transf_name)) {
-    transf_name = deparse(call$transf)
+    transf_name <- as.character(call$transf)
+    transf_name <- paste0(transf_name, " [95% CI]")
+
   }
 
   if (length(replace) > 0 & !identical(replace, FALSE)) {

@@ -4,7 +4,7 @@
 \alias{mlm}
 \title{mlm}
 \usage{
-mlm(m, formula, model.name = NULL, .envir)
+mlm(m, formula, model.name = NULL, .envir = parent.frame())
 }
 \arguments{
 \item{m}{meta3 object}

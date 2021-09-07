@@ -5,6 +5,7 @@
 #' @param data data object
 #' @param intercept bool, TRUE includes an intercept
 #' @param warn bool. If TRUE, you will be warned about variables with no variance
+#' @param export
 
 meta_matrix <- function(formula, data, intercept = FALSE, warn = TRUE){
   model_frame <- eval(call("model.frame", formula = str2lang(formula),
@@ -27,7 +28,22 @@ meta_matrix <- function(formula, data, intercept = FALSE, warn = TRUE){
     matrx.invariant <- subset(matrx.invariant, select = -`(Intercept)`)
   }
 
-  var0 <- apply(matrx.invariant, 2, function(x) length(table(x)) == 1)
+  var0 <- rep(TRUE, ncol(matrx)) # initiate variable
+  names(var0) <- colnames(matrx)
+
+  # Determine predictors with variance.
+
+  for(v in names(var0)){
+    if(!v %in% colnames(matrx.invariant)){
+      next
+    }
+
+    if(sd(matrx.invariant[,v, drop = TRUE]) != 0){
+      var0[v] <- FALSE
+    }
+
+  }
+
   var0[names(var0) == "(Intercept)"] <- FALSE
 
 
@@ -127,7 +143,7 @@ try_even_harder = function(model) {
 #' @param .envir the environment to run in
 #' @export
 
-mlm <- function(m, formula, model.name = NULL, .envir){
+mlm <- function(m, formula, model.name = NULL, .envir = parent.frame()){
   formula = as.character(formula)[as.character(formula) != "~"]
   if (!grepl("^~", formula)) {
     formula <-
@@ -162,8 +178,6 @@ mlm <- function(m, formula, model.name = NULL, .envir){
       warn = FALSE
     )
   )
-
-
 
   includes_intercept = any(grepl("\\(Intercept\\)",colnames(matrx)))
 
