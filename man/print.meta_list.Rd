@@ -2,7 +2,7 @@
 % Please edit documentation in R/moderate.r
 \name{print.meta_list}
 \alias{print.meta_list}
-\title{meta_list methods}
+\title{print.meta_list}
 \usage{
 \method{print}{meta_list}(x, ...)
 }
@@ -12,5 +12,5 @@
 \item{...}{additional arguments. Not currently used.}
 }
 \description{
-meta_list methods
+print.meta_list
 }

@@ -145,10 +145,10 @@ try_even_harder = function(model) {
 
 mlm <- function(m, formula, model.name = NULL, .envir = parent.frame()){
   formula = as.character(formula)[as.character(formula) != "~"]
-  if (!grepl("^~", formula)) {
+  formula <- gsub("^~","",formula)
+
     formula <-
-      paste0(m$call$y, " + ", m$call$v, " + ", m$call$cluster, " ~ ", formula)
-  }
+      paste0(m$call$y, " + ", m$call$v, " + as.numeric(as.factor(",m$call$cluster, ")) ~ ", formula)
 
   # check meta3 used
   if(!methods::is(m, "meta3")) stop("Only meta3 models are supported. To perform a 2-level meta-analysis use the meta3 argument: RE3.constraints = 0")
@@ -160,6 +160,7 @@ mlm <- function(m, formula, model.name = NULL, .envir = parent.frame()){
 
   call = m$call
   .dataName = call$data
+
   .internalData <- eval(.dataName, envir = .envir)
 
   m$call$data <- as.name(".internalData")

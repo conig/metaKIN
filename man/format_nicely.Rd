@@ -7,7 +7,7 @@
 format_nicely(
   meta_list,
   round = 2,
-  transf = function(x) {     x },
+  transf = NULL,
   effect_name = "Estimate",
   transf_name = NULL,
   hide_insig = TRUE,

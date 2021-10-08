@@ -61,7 +61,7 @@ moderate = function(m,...,moderators = NULL, debug = FALSE){
 
 }
 
-#' meta_list methods
+#' print.meta_list
 #' @param x object to print
 #' @param ... additional arguments. Not currently used.
 #' @export

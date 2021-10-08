@@ -110,7 +110,7 @@ report_3psm = function(x, round = 2, transf = NULL){
 
   if(real_p <0.05){
 
-    adjusted_result = PET_PEESE(x, transf = transf)
+    adjusted_result = FPP(x, transf = transf)
     mess2 = glue::glue("The estimate adjusted for publication bias was {adjusted_result}.")
     mess = paste(mess, mess2)
     }
