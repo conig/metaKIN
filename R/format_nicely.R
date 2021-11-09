@@ -5,11 +5,13 @@
 
 just_estimates <- function(x){
   mod_lvl <- !attr(x, "Baseline")
+
   data.table::data.table(model_slopes(x),
                          keep.rownames = "moderation")[
                            !moderation %in% c("Tau2_2", "Tau2_3"),
                            .(moderation, Estimate, SE = Std.Error, lbound, ubound,
-                             moderator_level = mod_lvl)]
+                             moderator_level = mod_lvl,
+                             p_value = `Pr(>|z|)`)]
 }
 
 #' moderator_info
@@ -43,6 +45,8 @@ moderator_info <- function(x){
 #' @param leading_zero a bool. If TRUE, p-values will have leading zeros
 #' @param ci_sep separator for confidence intervals
 #' @param include_i2 A bool, should i2 be included next to baseline?
+#' @param stars should significance stars be included for factor levels?
+#' @param slope_p if TRUE slope p-values are included
 #' @param replace a vector with names included. gsub will be applied to the moderation column such that the vector's names are replaced with the vector's contents
 #' @import data.table
 #' @export
@@ -58,9 +62,10 @@ format_nicely = function(meta_list,
                          leading_zero = FALSE,
                          ci_sep = ", ",
                          include_i2 = FALSE,
+                         stars = FALSE,
+                         slope_p = FALSE,
                          replace = c("_" = " ")) {
   call <- match.call()
-
   if(is.null(transf)){
     transf <- function(x) x
     is_transf = FALSE
@@ -94,6 +99,9 @@ format_nicely = function(meta_list,
   nullreplace = glue::glue_data(tab, "{NA} [{NA}{ci_sep}{NA}]")
   tab$Estimate_formatted[tab$Estimate_formatted == nullreplace] <-
     NA
+  if(stars){
+    tab$Estimate_formatted[which(tab$p_value < 0.05)] <- paste0(tab$Estimate_formatted[which(tab$p_value < 0.05)], "*")
+  }
 
   indent <- tab$moderator_level
 
@@ -104,9 +112,10 @@ format_nicely = function(meta_list,
     Estimate_formatted,
     Estimate,
     SE,
-    "$R^2_{(2)}$" = digits(R2_2, round),
-    "$R^2_{(3)}$" = digits(R2_3, round),
-    `$p$` = round_p(p.value, p_digits)
+    `$p$` = round_p(p_value, p_digits),
+    "$R^2_{(2)}$" = digits(R2_2 * 100, round),
+    "$R^2_{(3)}$" = digits(R2_3 * 100, round),
+    `Likelihood Ratio Test` = LRT
   )]
 
   if (!is_transf) {
@@ -129,11 +138,12 @@ format_nicely = function(meta_list,
     }
   }
 
+  if(!slope_p) tab$`$p$` <- NULL
   data.table::setnames(tab, "Estimate", effect_name, skip_absent = TRUE)
   data.table::setnames(tab, "Estimate_formatted", transf_name)
   if (all(is.na(tab$"$R^2_{(3)}$")))
     tab$"$R^2_{(3)}$" <- NULL
-  tab[is.na(tab)] <- "-"
+  tab[is.na(tab)] <- ""
   attr(tab, "indent") <- indent
   tab
 }

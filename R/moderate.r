@@ -224,10 +224,11 @@ round_p <- function(p, n = 3, stars = c(), leading.zero = T, apa_threshold = 0.0
 }
 
 mlm_overview = function(x) {
-
   if (methods::is(x, "metalm")) {
     model_summary = summary(x)$summary
     Pval = x$anova$p[2]
+    LRT = as.character(glue::glue("$\\chi^2$({x$anova$diffdf[2]}) = {digits(x$anova$diffLL[2],2)}, $p$ = {round_p(Pval)}"))
+    LRT <- gsub("= <", "<", LRT)
     r2_val <- model_summary$R2.values
     R2_2 <- r2_val["R2", "Level 2"]
     R2_3 <- r2_val["R2", "Level 3"]
@@ -240,6 +241,7 @@ mlm_overview = function(x) {
   Pval = NA
   R2_2 <- NA
   R2_3 <- NA
+  LRT <- NA_character_
   model_name <- x$call$model.name
   }
 
@@ -254,7 +256,8 @@ mlm_overview = function(x) {
              R2_2 = R2_2,
              R2_3 = R2_3,
              p.value = Pval,
-             mx_status = model_summary$Mx.status1)
+             mx_status = model_summary$Mx.status1,
+             LRT = LRT)
 }
 
 #' summary.meta_list
