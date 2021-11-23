@@ -8,10 +8,12 @@
 #' @param cluster the name of the clustering variable
 #' @param data data.frame
 #' @param transf a function to transform individual correlations
-#' @param ni the name of the column containing the sample size
+#' @param ni the name of the column containing the sample sizes
+#' @param ... additional moderators
 #' @import data.table
+#' @details N is calculated as the average sample size per correlation
 
-cormat_list <- function(yi, vi, ni, var1, var2, cluster, data, transf = NULL){
+cormat_list <- function(yi, vi, ni, var1, var2, cluster, data, transf = NULL, ...){
 
   data = data.table::data.table(data)
   inspect_vars = data[,c(yi,vi,var1,var2,cluster), with = FALSE]
@@ -29,6 +31,7 @@ cormat_list <- function(yi, vi, ni, var1, var2, cluster, data, transf = NULL){
   }
 
   get_matrix = function(id, vars, data, transform = NULL){
+
     m = make_matrix(vars)
     dat = data[which(data[,cluster, with = FALSE] == id),]
 
@@ -77,12 +80,31 @@ cormat_list <- function(yi, vi, ni, var1, var2, cluster, data, transf = NULL){
 
   names(dat_list$data) <- unique_ids
 
-  get_n = function(id, ni){
-    ceiling(mean(unlist(data[unlist(data[,cluster, with = FALSE]) == id, ni, with = FALSE]),na.rm = TRUE))
+  # Apply moderators
+
+  moderators <- as.list(substitute(list(...)))[-1L]
+
+  n_dat <- data[,
+                list(n = mean(eval(parse(text = ni), envir = .SD), na.rm = TRUE))
+                , by = cluster]
+
+  n_order <- order(match(n_dat[[1]], names(dat_list$data)))
+
+  dat_list <- append(dat_list, n_dat[n_order, -1])
+
+  if(length(moderators) > 0){
+
+  moderators <- data[,
+       {
+       lapply(moderators, function(x) eval(x, envir = .SD))
+         }
+       , by = cluster]
+
+  order_mods <- order(match(moderators[[1]], names(dat_list$data)))
+  dat_list <- append(dat_list, moderators[order_mods,-1])
+
   }
 
-
-  dat_list$n = unlist(lapply(unique_ids, function(x) get_n(x, ni)))
   dat_list
 
 }

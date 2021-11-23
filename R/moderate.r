@@ -42,8 +42,12 @@ moderate = function(m,...,moderators = NULL, debug = FALSE){
     attr(moderated_model, "Baseline") <- FALSE
     moderated_model
   })
+
   models <- append(list(m), models)
   names(models) = c("Baseline",names(elip))
+
+  models <- models[!is.na(models)] # Remove models without valid predictor matrices
+
 
   out <- list(
     call = call,
@@ -79,6 +83,7 @@ print.meta_list = function(x, ...) {
   })
 
   tab <- do.call(rbind, tab)
+  tab$LRT <- NULL
   tab$R2_2 <- digits(tab$R2_2, 2)
   tab$R2_3 <- digits(tab$R2_3, 2)
   tab$p.value <- round_p(tab$p.value,3, stars = 0.05)

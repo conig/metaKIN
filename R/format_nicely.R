@@ -121,13 +121,13 @@ format_nicely = function(meta_list,
   if (!is_transf) {
     tab$Estimate <- NULL
     if (is.null(transf_name)) {
-      transf_name <- paste0(effect_name, " [95% CI]")
+      transf_name <- paste0(effect_name, " [95\\% CI]")
     }
   }
 
   if (is.null(transf_name)) {
     transf_name <- as.character(call$transf)
-    transf_name <- paste0(transf_name, " [95% CI]")
+    transf_name <- paste0(transf_name, " [95\\% CI]")
 
   }
 

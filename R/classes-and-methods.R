@@ -15,5 +15,5 @@
 #' @param ... additional arguments passed to ninjaForest.
 #' @export
 plot.meta_list = function(x, ...) {
-  forest_plot(x, ...)
+  forest_plot(x, ..., envir = parent.frame())
 }

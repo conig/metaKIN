@@ -17,7 +17,8 @@ meta_matrix <- function(formula, data, intercept = FALSE, warn = TRUE){
                       na.action = stats::na.omit))
 
   if(length(stats::na.omit(unique(unlist(model_frame[,-1])))) <= 1){
-    stop("No variance in predictor matrix")
+    warning("No variance in predictor matrix", formula)
+    return(NA)
   }
 
   matrx <- model.matrix2(eval(parse(text = formula)), data = model_frame)
@@ -169,7 +170,6 @@ mlm <- function(m, formula, model.name = NULL, .envir = parent.frame()){
 
   matrx_call <- call("meta_matrix", formula = formula, data = as.name(".internalData"))
 
-
   matrx <- eval(
     call(
       "meta_matrix",
@@ -179,6 +179,7 @@ mlm <- function(m, formula, model.name = NULL, .envir = parent.frame()){
       warn = FALSE
     )
   )
+  if(is.na(matrx)) return(NA)
 
   includes_intercept = any(grepl("\\(Intercept\\)",colnames(matrx)))
 

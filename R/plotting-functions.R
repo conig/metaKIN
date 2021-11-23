@@ -45,6 +45,7 @@ add_diamond = function(plot, data, fill = "grey20", colour = NA) {
 #' @param summary.size a scalar ggplot2 geom_point size value
 #' @param moderator_diamond a bool. If true, diamond is created for moderators
 #' @param font A string. The name of a font family. Defaults to serif
+#' @param envir the calling environment to retrieve model data by name
 #' @import ggplot2
 #' @export
 
@@ -65,7 +66,9 @@ forest_plot <- function(model,
                         summary.shape = 23,
                         summary.size = 4,
                         moderator_diamond = FALSE,
-                        font = "serif") {
+                        font = "serif",
+                        envir = parent.frame()) {
+
   if (is.null(transf)) {
     transf <- function(x)
       x
@@ -89,7 +92,7 @@ forest_plot <- function(model,
     .internalDat[is.na(moderation) |
                    moderation %in% c(mod, "Baseline"),]
 
-  source_data <- eval(model$models$Baseline$call$data)
+  source_data <- eval(model$models$Baseline$call$data, envir = envir)
 
   if (is.null(author))
     author <- find_author(source_data)
@@ -103,7 +106,6 @@ forest_plot <- function(model,
   key <- unique(key[, cluster := as.character(cluster)])
   if (max(table(key$cluster)) > 1)
     warning("Inconsistent author and year for at least one cluster. Check data.")
-
 
   plot_dat <- merge(.internalDat, key, all.x = TRUE, by = "cluster")
 
