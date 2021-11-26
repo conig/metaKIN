@@ -301,7 +301,7 @@ funnel_plot = function(model,
   data$lower = data$y  - crit_val * data$se
   data$upper = data$y + crit_val * data$se
   dfCI = data.frame(ll95, ul95, se.seq, estimate, meanll95, meanul95)
-  reg_test = (metafor::regtest(x = data$y, vi = data$v))
+
   fp = ggplot2::ggplot(data, ggplot2::aes(
     x = se,
     y = y,
@@ -360,7 +360,7 @@ funnel_plot = function(model,
     fp = fp + ggplot2::theme(text = ggplot2::element_text(family = font))
   }
 
-  return(list(plot = fp, reg_test = reg_test))
+  fp
 }
 
 #' forest_height
