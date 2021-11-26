@@ -4,14 +4,14 @@
 \alias{cormat_list}
 \title{cormat_list}
 \usage{
-cormat_list(yi, vi, ni, var1, var2, cluster, data, transf = NULL)
+cormat_list(yi, vi, ni, var1, var2, cluster, data, transf = NULL, ...)
 }
 \arguments{
 \item{yi}{correlation effect}
 
 \item{vi}{correlation variance}
 
-\item{ni}{the name of the column containing the sample size}
+\item{ni}{the name of the column containing the sample sizes}
 
 \item{var1}{the name of the column containing the first variable}
 
@@ -22,7 +22,12 @@ cormat_list(yi, vi, ni, var1, var2, cluster, data, transf = NULL)
 \item{data}{data.frame}
 
 \item{transf}{a function to transform individual correlations}
+
+\item{...}{additional moderators}
 }
 \description{
 Generate a list of correlation matrices for tssem
+}
+\details{
+N is calculated as the average sample size per correlation
 }

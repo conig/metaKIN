@@ -22,7 +22,8 @@ forest_plot(
   summary.shape = 23,
   summary.size = 4,
   moderator_diamond = FALSE,
-  font = "serif"
+  font = "serif",
+  envir = parent.frame()
 )
 }
 \arguments{
@@ -61,6 +62,8 @@ forest_plot(
 \item{moderator_diamond}{a bool. If true, diamond is created for moderators}
 
 \item{font}{A string. The name of a font family. Defaults to serif}
+
+\item{envir}{the calling environment to retrieve model data by name}
 }
 \description{
 Produce a forest plot for meta_list objects

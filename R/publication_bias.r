@@ -58,7 +58,7 @@ FPP = function(m, transf = function(x) x, round = 2, alpha = .05){
     list(
       anova = pub_bias,
       diffLL = glue::glue(
-        "$\\triangle LL$({pub_bias$diffdf[2]}) = {digits(pub_bias$diffLL[2])}, $p$ = {round_p(pub_bias$p[2])}"
+        "$\\chi^2$({pub_bias$diffdf[2]}) = {digits(pub_bias$diffLL[2])}, $p$ = {round_p(pub_bias$p[2])}"
       ),
       adj_est = unname(get_val(adj_m, "estimate95", transf = transf)),
       adj_method = meth,

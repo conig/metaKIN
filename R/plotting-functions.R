@@ -38,7 +38,6 @@ add_diamond = function(plot, data, fill = "grey20", colour = NA) {
 #' @param vline a scalar. Dictates the x-intercept (the dashed line).
 #' @param author the name of the author column
 #' @param year the name of the year column
-#' @param include_weights a bool. If true, effect sizes become transparent proportional to their weight
 #' @param moderator.shape a scalar ggplot2 geom_point shape value
 #' @param moderator.size a scalar. ggplot2 geom_point size value
 #' @param summary.shape a scalar ggplot2 geom_point shape value
@@ -60,7 +59,6 @@ forest_plot <- function(model,
                         vline = 0,
                         author = NULL,
                         year = NULL,
-                        include_weights = FALSE,
                         moderator.shape = 23,
                         moderator.size = 3,
                         summary.shape = 23,
@@ -112,10 +110,15 @@ forest_plot <- function(model,
   plot_dat$year[is.na(plot_dat$year)] <-
     plot_dat$order[is.na(plot_dat$year)]
 
+
   plot_dat[type == "Effect size"]$cluster <-
     with(plot_dat[type == "Effect size"], paste(author, year))
 
-  plot_dat$cluster <- factor(plot_dat$cluster)
+  # Order plot data
+  plot_dat <- plot_dat[order(plot_dat$year),]
+
+  plot_dat$cluster <- factor(plot_dat$cluster, levels = unique(plot_dat$cluster))
+
   mod_levels <-
     levels(droplevels(plot_dat[type == "moderator level"]$cluster))
   effect_levels <-
@@ -167,15 +170,17 @@ forest_plot <- function(model,
     )
   }
 
-  if (!is.null(font))
+
+  if (nrow(plot_dat[plot_dat$setting == "Pooled",]) < 2) {
+    p <-
+      p + ggplot2::theme(
+        strip.text.y = ggplot2::element_text(angle = 0),
+        strip.background.y = ggplot2::element_blank()
+      )
+  }
+    if (!is.null(font))
     p <-
     p + ggplot2::theme(text = ggplot2::element_text(family = font))
-  if (nrow(plot_dat[plot_dat$setting == "Pooled", ]) < 2) {
-    p <- p + ggplot2::theme(
-      strip.background = ggplot2::element_blank(),
-      strip.text = ggplot2::element_blank()
-    )
-  }
 
   p
 

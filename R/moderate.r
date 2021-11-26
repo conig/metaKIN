@@ -272,9 +272,12 @@ mlm_overview = function(x) {
 
 summary.meta_list = function(object, ...){
 
-  tab <- format_nicely(object, ...)
+  tab <- format_nicely(object, slope_p = TRUE, ...)
+
   tab$Moderation[attr(tab, "indent")] <- paste0("--",tab$Moderation[attr(tab, "indent")])
   names(tab) <-gsub("[$^{}_]","", names(tab))
+  tab$LRT_p <- gsub(".*p\\$\\s=?\\s?", "", tab$`Likelihood Ratio Test`)
+  tab$`Likelihood Ratio Test` <- NULL
 
   capture_simply = function(cols, right) utils::capture.output(print.data.frame(tab[,cols, drop = FALSE, with = FALSE], right = right, row.names = FALSE))
   col1 <- trimws(capture_simply(1, FALSE), which = "left")

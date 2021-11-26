@@ -16,6 +16,8 @@ format_nicely(
   leading_zero = FALSE,
   ci_sep = ", ",
   include_i2 = FALSE,
+  stars = FALSE,
+  slope_p = FALSE,
   replace = c(`_` = " ")
 )
 }
@@ -41,6 +43,10 @@ format_nicely(
 \item{ci_sep}{separator for confidence intervals}
 
 \item{include_i2}{A bool, should i2 be included next to baseline?}
+
+\item{stars}{should significance stars be included for factor levels?}
+
+\item{slope_p}{if TRUE slope p-values are included}
 
 \item{replace}{a vector with names included. gsub will be applied to the moderation column such that the vector's names are replaced with the vector's contents}
 }
