@@ -14,6 +14,7 @@ format_nicely(
   round = 2,
   p_digits = 3,
   ci_sep = ", ",
+  ci_NA = " -",
   include_i2 = FALSE,
   stars = FALSE,
   replace = c(`_` = " ")
@@ -37,6 +38,8 @@ format_nicely(
 \item{p_digits}{a scalar. The number of digits to round p to.}
 
 \item{ci_sep}{separator for confidence intervals}
+
+\item{ci_NA}{string to replace missing confidence intervals with}
 
 \item{include_i2}{A bool, should i2 be included next to baseline?}
 

@@ -42,6 +42,7 @@ moderator_info <- function(x){
 #' @param hide_insig a bool.
 #' @param p_digits a scalar. The number of digits to round p to.
 #' @param ci_sep separator for confidence intervals
+#' @param ci_NA string to replace missing confidence intervals with
 #' @param include_i2 A bool, should i2 be included next to baseline?
 #' @param stars should significance stars be included for factor levels?
 #' @param slope_p if TRUE slope p-values are included
@@ -58,6 +59,7 @@ format_nicely = function(meta_list,
                          round = 2,
                          p_digits = 3,
                          ci_sep = ", ",
+                         ci_NA = " -",
                          include_i2 = FALSE,
                          stars = FALSE,
                          replace = c("_" = " ")) {
@@ -99,7 +101,7 @@ format_nicely = function(meta_list,
   nullreplace = glue::glue_data(tab, "{NA} [{NA}{ci_sep}{NA}]")
   tab$Estimate_formatted[tab$Estimate_formatted == nullreplace] <-
     NA
-  tab$Estimate_formatted <- gsub(glue::glue(" \\[NA{ci_sep}NA\\]"), "", tab$Estimate_formatted)
+  tab$Estimate_formatted <- gsub(glue::glue(" \\[NA{ci_sep}NA\\]"), ci_NA, tab$Estimate_formatted)
 
   if(stars){
     tab$Estimate_formatted[which(tab$p_value < 0.05)] <- paste0(tab$Estimate_formatted[which(tab$p_value < 0.05)], "*")
