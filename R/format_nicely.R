@@ -88,6 +88,10 @@ format_nicely = function(meta_list,
   tab$Transformed_estimate = digits(transf(tab$Estimate), round)
   tab$Estimate = digits(tab$Estimate, round)
   tab$SE = digits(tab$SE, round)
+
+  # replace SE with "-" when NA and moderator level
+  tab$SE[is.na(tab$SE) & tab$moderator_level] <- "-"
+
   tab$lbound = digits(transf(tab$lbound), round)
   tab$ubound = digits(transf(tab$ubound), round)
 
@@ -95,6 +99,8 @@ format_nicely = function(meta_list,
   nullreplace = glue::glue_data(tab, "{NA} [{NA}{ci_sep}{NA}]")
   tab$Estimate_formatted[tab$Estimate_formatted == nullreplace] <-
     NA
+  tab$Estimate_formatted <- gsub(glue::glue(" \\[NA{ci_sep}NA\\]"), "", tab$Estimate_formatted)
+
   if(stars){
     tab$Estimate_formatted[which(tab$p_value < 0.05)] <- paste0(tab$Estimate_formatted[which(tab$p_value < 0.05)], "*")
   }
