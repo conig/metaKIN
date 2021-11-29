@@ -170,17 +170,19 @@ forest_plot <- function(model,
     )
   }
 
+      if (!is.null(font))
+    p <-
+    p + ggplot2::theme(text = ggplot2::element_text(family = font))
 
   if (nrow(plot_dat[plot_dat$setting == "Pooled",]) < 2) {
     p <-
       p + ggplot2::theme(
         strip.text.y = ggplot2::element_text(angle = 0),
-        strip.background.y = ggplot2::element_blank()
+        strip.background.y = ggplot2::element_blank(),
+        text = element_text(family = font)
       )
   }
-    if (!is.null(font))
-    p <-
-    p + ggplot2::theme(text = ggplot2::element_text(family = font))
+
 
   p
 
@@ -301,7 +303,6 @@ funnel_plot = function(model,
   data$lower = data$y  - crit_val * data$se
   data$upper = data$y + crit_val * data$se
   dfCI = data.frame(ll95, ul95, se.seq, estimate, meanll95, meanul95)
-
   fp = ggplot2::ggplot(data, ggplot2::aes(
     x = se,
     y = y,

@@ -18,7 +18,7 @@ meta_matrix <- function(formula, data, intercept = FALSE, warn = TRUE){
 
   if(length(stats::na.omit(unique(unlist(model_frame[,-1])))) <= 1){
     warning("No variance in predictor matrix", formula)
-    return(NA)
+    return(NULL)
   }
 
   matrx <- model.matrix2(eval(parse(text = formula)), data = model_frame)
@@ -179,7 +179,7 @@ mlm <- function(m, formula, model.name = NULL, .envir = parent.frame()){
       warn = FALSE
     )
   )
-  if(is.na(matrx)) return(NA)
+  if(is.null(matrx)) return(NA)
 
   includes_intercept = any(grepl("\\(Intercept\\)",colnames(matrx)))
 

@@ -40,9 +40,7 @@ moderator_info <- function(x){
 #' @param effect_name a string. If provided, will rename Estimate column with string provided.
 #' @param transf_name a character string. If provided, will name the transformed column.
 #' @param hide_insig a bool.
-#' @param escape_pc a bool. If TRUE, \% symbols will be escaped in header, captions and notes.
 #' @param p_digits a scalar. The number of digits to round p to.
-#' @param leading_zero a bool. If TRUE, p-values will have leading zeros
 #' @param ci_sep separator for confidence intervals
 #' @param include_i2 A bool, should i2 be included next to baseline?
 #' @param stars should significance stars be included for factor levels?
@@ -52,18 +50,16 @@ moderator_info <- function(x){
 #' @export
 
 format_nicely = function(meta_list,
-                         round = 2,
-                         transf = NULL,
                          effect_name = "Estimate",
+                         transf = NULL,
                          transf_name = NULL,
-                         hide_insig = TRUE,
-                         escape_pc = FALSE,
+                         slope_p = TRUE,
+                         hide_insig = FALSE,
+                         round = 2,
                          p_digits = 3,
-                         leading_zero = FALSE,
                          ci_sep = ", ",
                          include_i2 = FALSE,
                          stars = FALSE,
-                         slope_p = FALSE,
                          replace = c("_" = " ")) {
   call <- match.call()
   if(is.null(transf)){

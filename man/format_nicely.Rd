@@ -6,47 +6,41 @@
 \usage{
 format_nicely(
   meta_list,
-  round = 2,
-  transf = NULL,
   effect_name = "Estimate",
+  transf = NULL,
   transf_name = NULL,
-  hide_insig = TRUE,
-  escape_pc = FALSE,
+  slope_p = TRUE,
+  hide_insig = FALSE,
+  round = 2,
   p_digits = 3,
-  leading_zero = FALSE,
   ci_sep = ", ",
   include_i2 = FALSE,
   stars = FALSE,
-  slope_p = FALSE,
   replace = c(`_` = " ")
 )
 }
 \arguments{
 \item{meta_list}{a meta_list object}
 
-\item{round}{a scalar.}
+\item{effect_name}{a string. If provided, will rename Estimate column with string provided.}
 
 \item{transf}{a function. If provided will transform effects and confidence intervals.}
 
-\item{effect_name}{a string. If provided, will rename Estimate column with string provided.}
-
 \item{transf_name}{a character string. If provided, will name the transformed column.}
+
+\item{slope_p}{if TRUE slope p-values are included}
 
 \item{hide_insig}{a bool.}
 
-\item{escape_pc}{a bool. If TRUE, \% symbols will be escaped in header, captions and notes.}
+\item{round}{a scalar.}
 
 \item{p_digits}{a scalar. The number of digits to round p to.}
-
-\item{leading_zero}{a bool. If TRUE, p-values will have leading zeros}
 
 \item{ci_sep}{separator for confidence intervals}
 
 \item{include_i2}{A bool, should i2 be included next to baseline?}
 
 \item{stars}{should significance stars be included for factor levels?}
-
-\item{slope_p}{if TRUE slope p-values are included}
 
 \item{replace}{a vector with names included. gsub will be applied to the moderation column such that the vector's names are replaced with the vector's contents}
 }

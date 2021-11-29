@@ -16,7 +16,6 @@ forest_plot(
   vline = 0,
   author = NULL,
   year = NULL,
-  include_weights = FALSE,
   moderator.shape = 23,
   moderator.size = 3,
   summary.shape = 23,
@@ -48,8 +47,6 @@ forest_plot(
 \item{author}{the name of the author column}
 
 \item{year}{the name of the year column}
-
-\item{include_weights}{a bool. If true, effect sizes become transparent proportional to their weight}
 
 \item{moderator.shape}{a scalar ggplot2 geom_point shape value}
 
