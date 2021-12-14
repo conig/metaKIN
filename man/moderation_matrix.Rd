@@ -11,7 +11,8 @@ moderation_matrix(
   null_value = NULL,
   transf = NULL,
   leading_zero = TRUE,
-  black = NULL
+  black = NULL,
+  replace = c(`_` = " ")
 )
 }
 \arguments{
@@ -28,6 +29,8 @@ moderation_matrix(
 \item{leading_zero}{when true, leading zeros are allowed on the x-axis}
 
 \item{black}{list of outcome names containing their moderators}
+
+\item{replace}{a vector with names included. gsub will be applied to the moderation column such that the vector's names are replaced with the vector's contents}
 }
 \description{
 Plots a moderation matrix

@@ -9,7 +9,7 @@
 #' @param data data.frame
 #' @param transf a function to transform individual correlations
 #' @param ni the name of the column containing the sample sizes
-#' @param ... additional moderators
+#' @param ... optional moderators e.g. moderator = max(variable, na.rm = TRUE). Variables will be created by data.table by cluster.
 #' @import data.table
 #' @details N is calculated as the average sample size per correlation
 
@@ -124,133 +124,7 @@ star_matrix <- function(m, stars) {
   return(s_matrix)
 }
 
-#' tssem1_table
-#'
-#' Creates a table from the pooled correlation matrix from tssem1
-#' @param model the tssem stage 1 model
-
-tssem1_table = function(model){
-
-  dim_names = model$original.names
-  r_mat = stats::coef(model, select = "fixed") %>%
-    metaSEM::vec2symMat(diag = FALSE)
-  dimnames(r_mat) = list(dim_names,dim_names)
-
-  coefs = summary(model)$coefficients # get all coefs
-  p_mat = metaSEM::vec2symMat(coefs[grepl("Intercept", rownames(coefs)), "Pr(>|z|)"], diag = FALSE) #keep intercept coefs (not taus)
-  p_mat[upper.tri(p_mat)] = 1 # I don't want stars for the diagonal.
-  s_mat = star_matrix(p_mat , stars = c(0.05,0.01,0.001)) #star matrix
-
-  i2 = summary(model)$I2.values[,"Estimate"]*100
-  i2_mat = metaSEM::vec2symMat(i2, diag = FALSE) # create i2 matrix
-  #r_mat = round(r_mat,2) #round r matrix
-  r_mat[upper.tri(r_mat)] = i2_mat[upper.tri(i2_mat)] # merge in i2 matrix
-  r_mat = digits(r_mat, 2)
-  r_mat[] = paste0(r_mat,s_mat) #add in significance stars
-  diag(r_mat) = "-" # add in diagonal
-  r_mat[lower.tri(r_mat)] = gsub("0\\.",".",r_mat[lower.tri(r_mat)]) #get rid of leading zeros
-  r_mat = data.frame(r_mat)
-  rownames(r_mat) = paste0(seq_along(rownames(r_mat)),". ", rownames(r_mat)) #change rownames
-  colnames(r_mat) = seq_along(rownames(r_mat)) #change colnames
-  r_mat
-}
-
-#' tssem2_table
-#'
-#' Tabulate tssem2 regressions
-#' @param wls a wls model
-#' @param ... recode variable names, new_name = old_name
-#' @param estimate string, name for estimate variable
-#' @param transf transform function to apply to results
-#' @param t.name name for transformed results
-#' @param round number of digits to round to
-#' @export
-
-tssem2_table = function(wls, ..., transf = NULL, t.name = NULL, estimate = "Estimate", round = 2){
-
-  epi <- list(...)
-
-  reg <- summary(wls)$coefficients
-  vars <- colnames(wls$Cov)
-  temp_vars <- paste0("v", 1:length(vars))
-
-  reg$rowname <- rownames(reg)
-  rownames(reg) <- NULL
-  reg <- reg[,c(7,1:6)]
-
-  for(i in seq_along(vars)){
-    reg$rowname = gsub(vars[i],temp_vars[i],reg$rowname)
-  }
-
-  # allow recodes -------------------------
-
-  if(length(epi) > 0){
-    for(i in seq_along(epi)){
-      vars[grepl(epi[i],vars)] = names(epi[i])
-    }
-  }
-
-  # ---------------------------------------
-
-  colnames(reg) = c("Predictor", "Estimate","SE","lbound","ubound","z", "p")
-
-  if(!is.null(transf)){
-    reg$Estimate <- digits(transf(reg$Estimate),2)
-    reg$lbound <- digits(transf(reg$lbound),2)
-    reg$ubound <- digits(transf(reg$ubound),2)
-    reg$transf <- glue::glue("{reg$Estimate} [{reg$lbound}, {reg$ubound}]")
-    reg = reg[,c(1, 8, 2:7)]
-  }else{
-    est <- digits(reg$Estimate,2)
-    lower <- digits(reg$lbound,2)
-    upper <- digits(reg$ubound,2)
-    reg$Estimate <- glue::glue("{est} [{lower}, {upper}]")
-  }
-
-  reg$lbound = NULL
-  reg$ubound = NULL
-
-  reg$outcome = gsub("on.*","",reg$Predictor)
-  reg$outcome[grepl("with", reg$Predictor)] = "Covariances"
-  reg$Predictor = gsub(".*on","", reg$Predictor)
-
-  repLace <- function(x) {
-    n <- which(sapply(temp_vars, function(i)
-      grepl(i, x)))
-
-    if(sum(n) == 0){
-      return("Covariances")
-    }
-
-    if(length(n) > 1) {
-      one <- vars[n[1]]
-      two <- vars[n[2]]
-      out <- paste(one, "with", two)
-    }else{
-      out <- vars[n]
-    }
-    out
-  }
-
-  reg$SE = digits(reg$SE, 2)
-  reg$z = digits(reg$z, 2)
-  reg$p = round_p(reg$p)
-
-  reg$Predictor <- sapply(reg$Predictor, repLace)
-  reg$outcome <- sapply(reg$outcome, repLace)
-  reg <- to_rowhead(reg, "outcome")
-  attr(reg,"title") <- "TSSEM2 results"
-  reg
-
-
-}
-
-#' report_tssem2
-#'
-#' Report fit of tssem2
-#' @param x wls model
-#' @param pattern glue pattern. The usable variables are: df, chi, p, RMSEA, SRMR and TLI
-#' @export
+#' osmasem_table
 
 report_tssem2 <- function(x, pattern = NULL) {
   if(!methods::is(x, "wls")) {

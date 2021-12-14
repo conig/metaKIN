@@ -93,29 +93,6 @@ report_i2 = function(x, rmarkdown = FALSE){
   return(mess)
 }
 
-report_3psm = function(x, round = 2, transf = NULL){
-  call = match.call()
-  envir = sys.parent()
-  if(!methods::is(x,"name")) x <- call$x
-  x = eval(x, envir = envir)
-
-  chi2 = digits(with(threePSM({x}), chisq), round)
-  df = with(threePSM({x}), df)
-  p = round_p(with(threePSM({x}), pvalue))
-  real_p = with(threePSM({x}), pvalue)
-
-  was_message = ifelse(real_p < 0.05, "was", "was not")
-
-  mess = glue::glue("Evidence of potential publication bias {was_message} detected $\\chi^2$({df}) = {chi2}, $p$ = {p}.")
-
-  if(real_p <0.05){
-
-    adjusted_result = FPP(x, transf = transf)
-    mess2 = glue::glue("The estimate adjusted for publication bias was {adjusted_result}.")
-    mess = paste(mess, mess2)
-    }
-  mess
-}
 
 report_moderators = function(x, rmarkdown = FALSE, digits = 2){
   call = match.call()
@@ -168,10 +145,9 @@ return(mess)
 #' @param rmarkdown return results in rmarkdown?
 #' @param digits the number of digits to return
 #' @param transf you can supply a function to transform baseline pooled estimates
-#' @param threePSM a bool. Should publication bias be tested with weightr::weightfunct
 #' @export report
 
-report = function(meta_list,..., rmarkdown = FALSE, digits = 2, transf = function(x) x, threePSM = FALSE){
+report = function(meta_list,..., rmarkdown = FALSE, digits = 2, transf = function(x) x){
 call = match.call()
 
 
@@ -183,8 +159,6 @@ options <- c("n","q","baseline","i2","moderators")
 if(length(elip) == 0) elip <- options
 
 options <- options[options %in% elip]
-
-if(threePSM) options = c(options, "threePSM")
 
 mess = list(
   n = report_n(meta_list, rmarkdown = rmarkdown),
@@ -198,10 +172,6 @@ mess = list(
   i2 = report_i2(meta_list, rmarkdown = rmarkdown),
   moderators = report_moderators(meta_list, rmarkdown = rmarkdown, digits = 2)
 )
-
-if(threePSM){
-  mess$threePSM = report_3psm(call$meta_list, round = 2, transf = transf)
-}
 
 mess = paste(mess[options], collapse = " ")
 mess = gsub("call\\$transf","NULL", mess)

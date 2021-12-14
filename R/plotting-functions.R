@@ -111,8 +111,8 @@ forest_plot <- function(model,
     plot_dat$order[is.na(plot_dat$year)]
 
 
-  plot_dat[type == "Effect size"]$cluster <-
-    with(plot_dat[type == "Effect size"], paste(author, year))
+  plot_dat[type == "Effect sizes"]$cluster <-
+    with(plot_dat[type == "Effect sizes"], paste(author, year))
 
   # Order plot data
   plot_dat <- plot_dat[order(plot_dat$year),]
@@ -122,7 +122,7 @@ forest_plot <- function(model,
   mod_levels <-
     levels(droplevels(plot_dat[type == "moderator level"]$cluster))
   effect_levels <-
-    levels(droplevels(plot_dat[type == "Effect size"]$cluster))
+    levels(droplevels(plot_dat[type == "Effect sizes"]$cluster))
   plot_dat$cluster <-
     factor(plot_dat$cluster,
            levels = c("Baseline", mod_levels, effect_levels))
@@ -145,7 +145,7 @@ forest_plot <- function(model,
                         space = 'free_y') +
     ggplot2::theme_classic() +
     ggplot2::geom_point(data = plot_dat) +
-    ggplot2::geom_errorbar(data = plot_dat[type == "Effect size",], width = .1) +
+    ggplot2::geom_errorbar(data = plot_dat[type == "Effect sizes",], width = .1) +
     ggplot2::geom_vline(xintercept = vline,
                         #add horizontal line
                         color = 'black',
@@ -387,12 +387,13 @@ forest_height = function(meta3_plot, slope = .12, intercept = .52){
 #' @param transf function to transform values
 #' @param leading_zero when true, leading zeros are allowed on the x-axis
 #' @param black list of outcome names containing their moderators
+#' @param replace a vector with names included. gsub will be applied to the moderation column such that the vector's names are replaced with the vector's contents
 #' @import ggplot2 data.table
 #' @export
 
 moderation_matrix <- function(..., effect_size = "Effect size", moderators = NULL,
                               null_value = NULL, transf = NULL, leading_zero = TRUE,
-                              black = NULL){
+                              black = NULL, replace = c("_" = " ")){
 
   models <- list(...)
   #return(models)
@@ -470,6 +471,12 @@ moderation_matrix <- function(..., effect_size = "Effect size", moderators = NUL
     sig_dat$black <- FALSE
   }
 
+    if (length(replace) > 0 & !identical(replace, FALSE)) {
+      for (i in seq_along(replace)) {
+        final_dat$cluster <-
+          gsub(names(replace)[i], replace[i], final_dat$cluster)
+      }
+    }
 
   p <- ggplot(final_dat, aes(
     x = y,

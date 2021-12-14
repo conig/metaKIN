@@ -5,7 +5,7 @@
 #' @param data data object
 #' @param intercept bool, TRUE includes an intercept
 #' @param warn bool. If TRUE, you will be warned about variables with no variance
-#' @param export
+#' @export
 
 meta_matrix <- function(formula, data, intercept = FALSE, warn = TRUE){
   model_frame <- eval(call("model.frame", formula = str2lang(formula),

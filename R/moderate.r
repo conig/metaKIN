@@ -322,8 +322,8 @@ coef.meta_list <- function(object, ...){
       SE = sqrt(v),
       lower = y - crit_val * sqrt(v),
       upper = y + crit_val * sqrt(v),
-      setting = "Effect size",
-      type = "Effect size"
+      setting = "Effect sizes",
+      type = "Effect sizes"
     )]
 
   moderators <- lapply(object$models[-1], function(m) {

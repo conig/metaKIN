@@ -23,7 +23,7 @@ cormat_list(yi, vi, ni, var1, var2, cluster, data, transf = NULL, ...)
 
 \item{transf}{a function to transform individual correlations}
 
-\item{...}{additional moderators}
+\item{...}{optional moderators e.g. moderator = max(variable, na.rm = TRUE). Variables will be created by data.table by cluster.}
 }
 \description{
 Generate a list of correlation matrices for tssem

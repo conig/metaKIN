@@ -4,14 +4,7 @@
 \alias{report}
 \title{report}
 \usage{
-report(
-  meta_list,
-  ...,
-  rmarkdown = FALSE,
-  digits = 2,
-  transf = function(x) x,
-  threePSM = FALSE
-)
+report(meta_list, ..., rmarkdown = FALSE, digits = 2, transf = function(x) x)
 }
 \arguments{
 \item{meta_list}{the meta_list object}
@@ -23,8 +16,6 @@ report(
 \item{digits}{the number of digits to return}
 
 \item{transf}{you can supply a function to transform baseline pooled estimates}
-
-\item{threePSM}{a bool. Should publication bias be tested with weightr::weightfunct}
 }
 \description{
 Constructs written reports about the contents of models

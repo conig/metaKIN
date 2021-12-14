@@ -2,15 +2,10 @@
 % Please edit documentation in R/tssem_variables.R
 \name{report_tssem2}
 \alias{report_tssem2}
-\title{report_tssem2}
+\title{osmasem_table}
 \usage{
 report_tssem2(x, pattern = NULL)
 }
-\arguments{
-\item{x}{wls model}
-
-\item{pattern}{glue pattern. The usable variables are: df, chi, p, RMSEA, SRMR and TLI}
-}
 \description{
-Report fit of tssem2
+osmasem_table
 }

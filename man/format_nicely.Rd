@@ -14,7 +14,7 @@ format_nicely(
   round = 2,
   p_digits = 3,
   ci_sep = ", ",
-  ci_NA = " -",
+  ci_NA = "",
   include_i2 = FALSE,
   stars = FALSE,
   replace = c(`_` = " ")
