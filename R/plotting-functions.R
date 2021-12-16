@@ -406,7 +406,7 @@ moderation_matrix <- function(..., effect_size = "Effect size", moderators = NUL
     dat_list[[x]]
   })
 
-  DL <- data.table(do.call(rbind, DL))
+  DL <- data.table::rbindlist(DL)
 
   if(is.null(transf)){
     transf = function(x) x
@@ -414,11 +414,11 @@ moderation_matrix <- function(..., effect_size = "Effect size", moderators = NUL
 
   if(is.null(null_value)) null_value <- transf(0)
 
-  DL <- DL[type != "effect size", .(
+  DL <- DL[type != "Effect sizes", .(
     y = transf(est),
     lower = transf(lower),
     upper = transf(upper),
-    cluster,
+    cluster = factor(cluster, levels = unique(cluster)),
     moderation,
     outcome = factor(outcome, levels = names(models)),
     type,
@@ -441,7 +441,7 @@ moderation_matrix <- function(..., effect_size = "Effect size", moderators = NUL
   graph_dat$outcome = factor(graph_dat$outcome)
   # ------- fix cluster order
 
-  cluster_levels <- unique(graph_dat$cluster)
+  cluster_levels <- levels(as.factor(graph_dat$cluster))
   cluster_levels <- cluster_levels[cluster_levels != "Baseline"]
   cluster_levels <- c(cluster_levels, "Baseline")
 
@@ -476,6 +476,7 @@ moderation_matrix <- function(..., effect_size = "Effect size", moderators = NUL
         final_dat$cluster <-
           gsub(names(replace)[i], replace[i], final_dat$cluster)
       }
+      final_dat$cluster <- factor(final_dat$cluster, levels = unique(final_dat$cluster))
     }
 
   p <- ggplot(final_dat, aes(
