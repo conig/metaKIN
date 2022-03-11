@@ -340,7 +340,9 @@ get_val_baseline <- function(model, val, round, transf){
     "I2_2" = 'digits(summ$I2.values["I2_2 (Typical v: Q statistic)", "Estimate"],round)',
     "I2_3" = 'digits(summ$I2.values["I2_3 (Typical v: Q statistic)", "Estimate"],round)',
     "I2_2%" = 'paste0(digits(summ$I2.values["I2_2 (Typical v: Q statistic)", "Estimate"]*100,round),"%")',
-    "I2_3%" = 'paste0(digits(summ$I2.values["I2_3 (Typical v: Q statistic)", "Estimate"]*100,round),"%")'
+    "I2_3%" = 'paste0(digits(summ$I2.values["I2_3 (Typical v: Q statistic)", "Estimate"]*100,round),"%")',
+    "Tau2_2" = 'digits(summ$coefficients["Tau2_2", "Estimate"], round)',
+    "Tau2_3" = 'digits(summ$coefficients["Tau2_3", "Estimate"], round)'
   )
 
   res <- lapply(inst[names(inst) %in% val], function(x) eval(parse(text = x)))
