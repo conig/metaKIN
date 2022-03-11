@@ -306,7 +306,9 @@ get_val <- function(model, val, moderator = NULL, round = 2, transf = function(x
     "R2_2" = 'digits(summ$R2.values["R2","Level 2"],round)',
     "R2_2%" = 'paste0(digits(summ$R2.values["R2","Level 2"]*100,round),"%")',
     "R2_3" = 'digits(summ$R2.values["R2","Level 3"], round)',
-    "R2_3%" = 'paste0(digits(summ$R2.values["R2","Level 3"]*100, round),"%")'
+    "R2_3%" = 'paste0(digits(summ$R2.values["R2","Level 3"]*100, round),"%")',
+    "Tau2_2" = 'digits(summ$coefficients["Tau2_2", "Estimate"], round)',
+    "Tau2_3" = 'digits(summ$coefficients["Tau2_3", "Estimate"], round)'
   )
 
   res <- lapply(inst[names(inst) %in% val], function(x) eval(parse(text = x)))
