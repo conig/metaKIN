@@ -55,10 +55,20 @@ moderate = function(m,...,moderators = NULL, debug = FALSE){
   )
   class(out) <- "meta_list"
 
-  mx_results <- unlist(lapply(out$models, function(x) summary(x)$summary$Mx.status1))
+  model_info <- do.call(rbind,lapply(out$models, mlm_overview))
+
   #Flag to the users if models have a mx status of greater than one (which indicates issues)
-  if(any(!mx_results %in% c(0,1))){
-    warning("The following models had Mx status greater than one which could indicate issues with convergence: ", paste(names(mx_results)[mx_results > 1], collapse = ", "))
+
+  if(any(!model_info$mx_status %in% c(0,1))){
+
+    mx_results <- model_info$mx_status
+    names(mx_results) <- model_info$moderation
+
+    warning("The following models had Mx status other than zero or one which could indicate issues with convergence: ", paste(names(mx_results)[!mx_results %in% c(0,1)], collapse = ", "))
+  }
+
+  if(any(!is.na(model_info$fixed_tau))){
+    warning("At least one tau were < 0.001 and constrained to zero to assist with estimating standard errors for predictors",call. = FALSE)
   }
 
   out
@@ -95,7 +105,14 @@ print.meta_list = function(x, ...) {
     i
   })
 
-problem_models = tab$moderation[!tab$mx_status %in% c(0,1)]
+problem_models <- tab$moderation[!tab$mx_status %in% c(0,1)]
+fixed_tau <- tab$moderation[!is.na(tab$fixed_tau)]
+if(length(fixed_tau) > 0){
+  fixed_tau <- glue::glue("`{fixed_tau}` [{tab$fixed_tau[!is.na(tab$fixed_tau)]}]")
+  fixed_tau <- paste(fixed_tau, collapse = ", ")
+}
+
+tab$fixed_tau <- NULL
 
  out = utils::capture.output(tab[, !names(tab) %in% "mx_status"])
 
@@ -129,6 +146,12 @@ problem_models = tab$moderation[!tab$mx_status %in% c(0,1)]
   }
 
   cat(mx_message)
+  cat("\n\n")
+  if(length(fixed_tau) > 0){
+    tau_message <- glue::glue("Tau values for the following models were < 0.001 and needed to be fixed to zero to estimate standard errors for at least one predictor:\n")
+    cli::cli_alert_info(crayon::yellow(tau_message))
+    cat(fixed_tau)
+  }
 
   # removed_moderators = names(x$removed_moderators)[x$removed_moderators]
   #
@@ -228,7 +251,7 @@ round_p <- function(p, n = 3, stars = c(), leading.zero = T, apa_threshold = 0.0
 
 }
 
-mlm_overview = function(x) {
+mlm_overview = function(x, include_tau2 = FALSE) {
   if (methods::is(x, "metalm")) {
     model_summary = summary(x)$summary
     Pval = x$anova$p[2]
@@ -238,6 +261,8 @@ mlm_overview = function(x) {
     R2_2 <- r2_val["R2", "Level 2"]
     R2_3 <- r2_val["R2", "Level 3"]
     model_name = x$model$call$model.name
+    fixed_tau <- attr(x$model, "fixed_tau")
+    fixed_tau.original <- attr(x$model, "fixed_tau.originalvalue")
 
   }else{
     if(methods::is(x, "meta_list")) x <- x$models[[1]]
@@ -248,21 +273,51 @@ mlm_overview = function(x) {
   R2_3 <- NA
   LRT <- NA_character_
   model_name <- x$call$model.name
+  fixed_tau <- attr(x, "fixed_tau")
+  fixed_tau.original <- attr(x, "fixed_tau.originalvalue")
   }
 
+  Tau2_2 <- model_summary$coefficients["Tau2_2", "Estimate"]
+  Tau2_3 <- model_summary$coefficients["Tau2_3", "Estimate"]
+
+  if(!is.null(fixed_tau)){
+    if(fixed_tau == "Tau2_2"){
+      Tau2_2 <- fixed_tau.original
+    }
+    if(fixed_tau == "Tau2_3"){
+      Tau2_3 <- fixed_tau.original
+    }
+
+  }else{
+    fixed_tau = NA
+  }
 
   k <- model_summary$no.studies
   n <- model_summary$obsStat
 
+  if(is.null(model_name)) model_name <- "Unnamed model"
 
-  data.frame(moderation = model_name,
-             k = k,
-             n = n,
-             R2_2 = R2_2,
-             R2_3 = R2_3,
-             p.value = Pval,
-             mx_status = model_summary$Mx.status1,
-             LRT = LRT)
+  out <- data.frame(
+    moderation = model_name,
+    k = k,
+    n = n,
+    Tau2_2 = Tau2_2,
+    Tau2_3 = Tau2_3,
+    R2_2 = R2_2,
+    R2_3 = R2_3,
+    p.value = Pval,
+    mx_status = model_summary$Mx.status1,
+    fixed_tau = fixed_tau,
+    LRT = LRT
+  )
+
+  if(!include_tau2){
+    out$Tau2_2 <- NULL
+    out$Tau2_3 <- NULL
+  }
+
+  out
+
 }
 
 #' summary.meta_list

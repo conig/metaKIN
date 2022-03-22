@@ -16,6 +16,7 @@ format_nicely(
   ci_sep = ", ",
   ci_NA = "",
   include_i2 = FALSE,
+  include_tau2 = FALSE,
   stars = FALSE,
   replace = c(`_` = " ")
 )
@@ -42,6 +43,8 @@ format_nicely(
 \item{ci_NA}{string to replace missing confidence intervals with}
 
 \item{include_i2}{A bool, should i2 be included next to baseline?}
+
+\item{include_tau2}{A bool, should Tau2 be included?}
 
 \item{stars}{should significance stars be included for factor levels?}
 

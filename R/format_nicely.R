@@ -18,9 +18,11 @@ just_estimates <- function(x){
 #'
 #' moderator_info
 #' @param x meta_list model
+#' @param include_tau2 bool. should tau2 be included?
 
-moderator_info <- function(x){
-  overview <- data.table::data.table(mlm_overview(x))[,moderator_level := FALSE]
+moderator_info <- function(x, include_tau2 = FALSE){
+  overview <-
+    data.table::data.table(mlm_overview(x, include_tau2 = include_tau2))[, moderator_level := FALSE]
   slopes <- just_estimates(x)
   slopes$moderator_level = TRUE
   slopes <- merge(slopes, x$k_n, by = "moderation", all.x = TRUE, sort = FALSE)
@@ -44,6 +46,7 @@ moderator_info <- function(x){
 #' @param ci_sep separator for confidence intervals
 #' @param ci_NA string to replace missing confidence intervals with
 #' @param include_i2 A bool, should i2 be included next to baseline?
+#' @param include_tau2 A bool, should Tau2 be included?
 #' @param stars should significance stars be included for factor levels?
 #' @param slope_p if TRUE slope p-values are included
 #' @param replace a vector with names included. gsub will be applied to the moderation column such that the vector's names are replaced with the vector's contents
@@ -61,6 +64,7 @@ format_nicely = function(meta_list,
                          ci_sep = ", ",
                          ci_NA = "",
                          include_i2 = FALSE,
+                         include_tau2 = FALSE,
                          stars = FALSE,
                          replace = c("_" = " ")) {
   call <- match.call()
@@ -72,11 +76,11 @@ format_nicely = function(meta_list,
   }
 
   baseline <-
-    cbind(mlm_overview(meta_list$models[[1]]),
+    cbind(mlm_overview(meta_list$models[[1]], include_tau2 = TRUE),
           just_estimates(meta_list$models[[1]]))
 
   moderators <-
-    lapply(meta_list$models[2:length(meta_list$models)], moderator_info)
+    lapply(meta_list$models[2:length(meta_list$models)], function(m) moderator_info(m, include_tau2 = TRUE))
 
   tab <-
     data.table::rbindlist(append(list(baseline), moderators), fill = TRUE)
@@ -117,6 +121,8 @@ format_nicely = function(meta_list,
     Estimate,
     SE,
     `$p$` = round_p(p_value, p_digits),
+    "$\\tau^2_{(2)}$" = digits(Tau2_2, round),
+    "$\\tau^2_{(3)}$" = digits(Tau2_3, round),
     "$R^2_{(2)}$" = digits(R2_2 * 100, round),
     "$R^2_{(3)}$" = digits(R2_3 * 100, round),
     `Likelihood Ratio Test` = LRT
@@ -140,6 +146,11 @@ format_nicely = function(meta_list,
       tab$Moderation <-
         gsub(names(replace)[i], replace[i], tab$Moderation)
     }
+  }
+
+  if(!include_tau2){
+    tab$"$\\tau^2_{(2)}$" <- NULL
+    tab$"$\\tau^2_{(3)}$" <- NULL
   }
 
   if(!slope_p) tab$`$p$` <- NULL

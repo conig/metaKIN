@@ -116,21 +116,61 @@ get_kn<- function(model, param_names){
 #'
 #' reruns models with problems
 #' @param model the model.
-#' @importFrom dplyr %>%
-#' @importFrom metaSEM rerun
+#' @param extraTries the number of extra tries
+#' @param autofixtau2 Logical. Whether automatically fixes elements of tau2 with NA of standard errors. It only works for objects of class tssem1REM, class meta, and class osmasem.
 
-try_even_harder = function(model) {
+try_even_harder = function(model, extraTries = 25) {
   if (!summary(model)$Mx.status %in% c(0, 1)) {
-    suppressMessages(model <- metaSEM::rerun(model, extraTries = 19))
+    suppressMessages(model <- metaSEM::rerun(model,
+                                             extraTries = extraTries))
   }
+
   if (!summary(model)$Mx.status %in% c(0, 1)) {
-    suppressMessages(model <- #all the rerun messages in bulk just get in the way.
+    suppressMessages(model <-
+                       #all the rerun messages in bulk just get in the way.
                        metaSEM::rerun(
                          model,
-                         extraTries = 29,
-                         finetuneGradient = F
+                         extraTries = extraTries,
+                         finetuneGradient = FALSE
                        ))
   }
+
+  if (any(is.na(summary(model)$coefficients["Std.Error"]))) {
+
+    pre_summary <- summary(model)
+    #pre_tau <- summary(model)$coefficients[c("Tau2_2", "Tau2_3"),]
+
+    suppressMessages(model2 <-
+                       #all the rerun messages in bulk just get in the way.
+                       metaSEM::rerun(model,
+                                      extraTries = extraTries,
+                                      autofixtau2 = TRUE))
+
+    post_summary <- summary(model2)
+    taus <-
+      function(x)
+        x$coefficients[rownames(x$coefficients) %in% c("Tau2_2", "Tau2_3"), "Estimate", drop = FALSE]
+    pre_taus <- taus(pre_summary)
+    post_taus <- taus(post_summary)
+
+    missing_tau <- which(! rownames(pre_taus) %in% rownames(post_taus))
+
+    tau_change <-
+      merge(pre_taus, post_taus, by = "row.names", all = TRUE)
+    tau_change[is.na(tau_change)] <- 0
+    tau_change$diff <-
+      abs(tau_change$Estimate.x - tau_change$Estimate.y)
+
+    if (any(tau_change$diff > 0.001) | length(missing_tau) > 1) {
+      return(model)
+    } else{
+      attr(model2, "fixed_tau") <- rownames(pre_taus)[missing_tau]
+      attr(model2, "fixed_tau.originalvalue") <- pre_taus[missing_tau, "Estimate"]
+      return(model2)
+    }
+
+  }
+
   model
 }
 
@@ -195,7 +235,11 @@ mlm <- function(m, formula, model.name = NULL, .envir = parent.frame()){
   m_out <- eval(call)
 
   status <- m_out$mx.fit$output$status[[1]]
-  if(!status %in% c(0,1)){
+  SEs <- summary(m_out)$coefficients["Std.Error"]
+  missing_SEs <- any(is.na(SEs))
+
+  if((!status %in% c(0,1)) | missing_SEs){
+    # if status is not OK, or some SEs are NAs
     m_out <- try_even_harder(m_out)
   }
 

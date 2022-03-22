@@ -48,7 +48,7 @@ FPP = function(m, transf = function(x) x, round = 2, alpha = .05){
 
   # Publication bias test (FAT)
 
-  pub_bias <- anova(pet_m, m)
+  pub_bias <- stats::anova(pet_m, m)
 
   if(is.null(transf)){
     transf = function(x) x

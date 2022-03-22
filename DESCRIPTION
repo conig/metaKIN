@@ -20,7 +20,8 @@ Imports:
     glue,
     rlang,
     tidyr,
-    methods
+    methods,
+    cli
 Suggests: 
     metafor,
     weightr,

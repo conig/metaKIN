@@ -297,6 +297,24 @@ get_val <- function(model, val, moderator = NULL, round = 2, transf = function(x
   if(is.null(model)) stop("Moderator not found, check spelling")
   summ <- summary(model)
 
+  retrieve_tau2_2 <- function(x){
+    if(!is.null(attr(x, "fixed_tau"))){
+      if(attr(x, "fixed_tau") == "Tau2_2"){
+        return(attr(x, "fixed_tau.originalvalue"))
+      }
+    }
+    summ$coefficients["Tau2_2", "Estimate"]
+  }
+
+   retrieve_tau2_3 <- function(x){
+    if(!is.null(attr(x, "fixed_tau"))){
+      if(attr(x, "fixed_tau") == "Tau2_3"){
+        return(attr(x, "fixed_tau.originalvalue"))
+      }
+    }
+    summ$coefficients["Tau2_3", "Estimate"]
+  }
+
   inst <- list(
     "k" = "summ$no.studies",
     "n" = "summ$obsStat",
@@ -307,8 +325,8 @@ get_val <- function(model, val, moderator = NULL, round = 2, transf = function(x
     "R2_2%" = 'paste0(digits(summ$R2.values["R2","Level 2"]*100,round),"%")',
     "R2_3" = 'digits(summ$R2.values["R2","Level 3"], round)',
     "R2_3%" = 'paste0(digits(summ$R2.values["R2","Level 3"]*100, round),"%")',
-    "Tau2_2" = 'digits(summ$coefficients["Tau2_2", "Estimate"], round)',
-    "Tau2_3" = 'digits(summ$coefficients["Tau2_3", "Estimate"], round)'
+    "Tau2_2" = 'digits(retrieve_tau2_2(model), round)',
+    "Tau2_3" = 'digits(retrieve_tau2_3(model), round)'
   )
 
   res <- lapply(inst[names(inst) %in% val], function(x) eval(parse(text = x)))
