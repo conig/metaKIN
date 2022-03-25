@@ -10,8 +10,6 @@ try_even_harder(model, extraTries = 25)
 \item{model}{the model.}
 
 \item{extraTries}{the number of extra tries}
-
-\item{autofixtau2}{Logical. Whether automatically fixes elements of tau2 with NA of standard errors. It only works for objects of class tssem1REM, class meta, and class osmasem.}
 }
 \description{
 reruns models with problems

@@ -4,10 +4,10 @@
 \alias{print.KIN_summary}
 \title{print.KIN_summary}
 \usage{
-\method{print}{KIN_summary}(object, ...)
+\method{print}{KIN_summary}(x, ...)
 }
 \arguments{
-\item{object}{meta_list object}
+\item{x}{meta_list object}
 
 \item{...}{additional arguments passed to format_nicely}
 }

@@ -2,10 +2,15 @@
 % Please edit documentation in R/tssem_variables.R
 \name{report_tssem2}
 \alias{report_tssem2}
-\title{osmasem_table}
+\title{report_tssem2}
 \usage{
 report_tssem2(x, pattern = NULL)
 }
+\arguments{
+\item{x}{a wls object}
+
+\item{pattern}{A glue pattern}
+}
 \description{
-osmasem_table
+Report the results of tssem
 }

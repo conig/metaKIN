@@ -9,9 +9,7 @@ get_kn(model, param_names)
 \arguments{
 \item{model}{model to extract kn from}
 
-\item{matrx}{predictor matrix to extract kn from}
-
-\item{.internalData}{data object}
+\item{param_names}{the names of slopes}
 }
 \description{
 get numbers of studies and effect sizes

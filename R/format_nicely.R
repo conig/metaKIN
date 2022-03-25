@@ -162,3 +162,6 @@ format_nicely = function(meta_list,
   attr(tab, "indent") <- indent
   tab
 }
+
+utils::globalVariables(c("..var1","..var2","p_value","Tau2_2",
+                         "Tau2_3","LRT","value", "Pr(>|z|)"))

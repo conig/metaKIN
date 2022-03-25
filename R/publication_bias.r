@@ -69,4 +69,52 @@ FPP = function(m, transf = function(x) x, round = 2, alpha = .05){
 
 }
 
+#' aggregate_to_cluster
+#'
+#' Aggregate effect sizes to cluster
+#' @param model a meta3 model
+#' @details multiple effect sizes per cluster are aggregated using a fixed effects meta-analysis
+
+aggregate_to_cluster <- function(model){
+if(methods::is(model, "meta_list")) model <- model$models[[1]]
+
+  model_data <- data.table(model$data)
+
+  model_data[, {
+
+    if(nrow(.SD) == 1){
+      out <- list(y = .SD$y, v = .SD$v)
+    }else{
+    temp_mod <- metafor::rma(y, v, data = .SD, method = "FE")
+    out <- list(y = as.numeric(temp_mod$b), v = as.numeric(temp_mod$se^2))
+    }
+    out
+  }
+       , by = cluster]
+
+}
+
+#' trim_and_fill
+#'
+#' Perform trim and fill for meta3 objects.
+#' @param model a model of class meta3
+#' @param aggregate should data be aggregated first?
+#' @param ... additional arguments passed to metafor::rma.uni
+#' @details uses data aggregated by cluster.
+#' @return rma.uni.trimfill
+
+trim_and_fill <- function(model, aggregate = TRUE, ...){
+  if(methods::is(model, "meta_list")) model <- model$models[[1]]
+
+  if(aggregate){
+  data <- aggregate_to_cluster(model)
+  }else{
+    data <- model$data
+    warning("If there is clustering within the data the assumptions of trim and fill are violated.")
+  }
+
+  rma_model <- metafor::rma.uni(y, v, data = data, ...)
+
+  metafor::trimfill(rma_model)
+}
 

@@ -7,17 +7,18 @@
 funnel_plot(
   model,
   xlab = "Estimate",
-  ylab = "Standard Error",
+  ylab = "Standard error",
   font = "serif",
-  CI = F,
-  alpha = 0.6,
-  shape = 19,
+  aggregate = FALSE,
+  trimfill = FALSE,
+  alpha = 1,
   size = 1.5,
   CI_linetype = "dashed",
-  CI_size = 0.6,
+  CI_size = 0.7,
   pool_linetype = "dotted",
   pool_size = 0.5,
-  density = F
+  density = FALSE,
+  ...
 )
 }
 \arguments{
@@ -29,11 +30,11 @@ funnel_plot(
 
 \item{font}{a character string. Set's font family. Defaults to times new roman ('serif')}
 
-\item{CI}{a bool. If true, error bars will be plotted. totally unnecesary, but kind of fun.}
+\item{aggregate}{should data be aggregated to cluster level?}
+
+\item{trimfill}{should trimfill be performed?}
 
 \item{alpha}{a scalar. Sets alpha transparency.}
-
-\item{shape}{a scalar. The ggplot2 shape for the poitns}
 
 \item{size}{a scalar. The ggplot2 size value for the points}
 
@@ -46,7 +47,12 @@ funnel_plot(
 \item{pool_size}{ggplot2 size value for pooled estimate}
 
 \item{density}{a bool. If True, plots densit of points.}
+
+\item{...}{extra arguments passed to rma.uni for the purpose of trimfill.}
 }
 \description{
 This function is used for plotting funnel plots
+}
+\details{
+produces a funnel plot using ggplot2. If aggregate is set to TRUE, data is aggregated using fixed-effects meta-analysis to each cluster level (the pooled effect is not updated). If trimfill is set to TRUE, extra observations will be created as needed to achieve symmetry using metafor::trimfill. If trimfill results in new studies, the pooled effect will be updated based on the results of that meta-analysis—which is not multi-level. Note that funnel plots are often difficult to interpret, especially for multi-level meta-analysis. Note that the assumptions of trim and fill are violated if there are dependencies within the data (e.g., if data is clustered and you used multi-level meta-analysis to address this clustering).
 }

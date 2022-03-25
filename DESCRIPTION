@@ -21,7 +21,8 @@ Imports:
     rlang,
     tidyr,
     methods,
-    cli
+    cli,
+    clipr
 Suggests: 
     metafor,
     weightr,

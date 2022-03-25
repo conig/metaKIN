@@ -39,7 +39,7 @@ meta_matrix <- function(formula, data, intercept = FALSE, warn = TRUE){
       next
     }
 
-    if(sd(matrx.invariant[,v, drop = TRUE]) != 0){
+    if(stats::sd(matrx.invariant[,v, drop = TRUE]) != 0){
       var0[v] <- FALSE
     }
 
@@ -76,38 +76,33 @@ is_binary = function(x){
 #'
 #' get numbers of studies and effect sizes
 #' @param model model to extract kn from
-#' @param matrx predictor matrix to extract kn from
-#' @param .internalData data object
+#' @param param_names the names of slopes
 
-get_kn<- function(model, param_names){
-
-
+get_kn <- function(model, param_names) {
   dat <- model$data
-  dat <- dat[,grepl("^x|(cluster)",colnames(dat))]
+  dat <- dat[, grepl("^x|(cluster)", colnames(dat))]
   colnames(dat)[2:length(colnames(dat))]  <- param_names
 
-  if(is.null(model$call$incercept.constraints)){
+  if (is.null(model$call$incercept.constraints)) {
     dat$Intercept <- 1
-    dat <- dat[,c("cluster", "Intercept", param_names)]
+    dat <- dat[, c("cluster", "Intercept", param_names)]
   }
-
-
-
   out <- data.frame(moderation = names(dat)[-1])
 
-
-  long_dat <- data.table(tidyr::pivot_longer(dat, -cluster, names_to = "moderation"))[value == 1]
-  long_dat <- long_dat[, .(k = length(unique(cluster)), n = length(value)), by = "moderation"]
+  long_dat <-
+    data.table(tidyr::pivot_longer(dat,-cluster, names_to = "moderation"))[value == 1]
+  long_dat <-
+    long_dat[, .(k = length(unique(cluster)), n = length(value)), by = "moderation"]
 
   out <- dplyr::left_join(out, long_dat, by = "moderation")
   out[is.na(out)] <- 0
 
   bin <- is_binary(dat[-1])
-  if("Intercept" %in% names(bin)){
+  if ("Intercept" %in% names(bin)) {
     bin["Intercept"] <- FALSE
   }
 
-  out[!bin,c("k","n")] <- NA
+  out[!bin, c("k", "n")] <- NA
 
   data.frame(out)
 }
@@ -117,7 +112,7 @@ get_kn<- function(model, param_names){
 #' reruns models with problems
 #' @param model the model.
 #' @param extraTries the number of extra tries
-#' @param autofixtau2 Logical. Whether automatically fixes elements of tau2 with NA of standard errors. It only works for objects of class tssem1REM, class meta, and class osmasem.
+
 
 try_even_harder = function(model, extraTries = 25) {
   if (!summary(model)$Mx.status %in% c(0, 1)) {

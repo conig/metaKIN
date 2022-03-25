@@ -124,7 +124,11 @@ star_matrix <- function(m, stars) {
   return(s_matrix)
 }
 
-#' osmasem_table
+#' report_tssem2
+#'
+#' Report the results of tssem
+#' @param x a wls object
+#' @param pattern A glue pattern
 
 report_tssem2 <- function(x, pattern = NULL) {
   if(!methods::is(x, "wls")) {

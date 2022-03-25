@@ -419,12 +419,12 @@ data.table::rbindlist(list(baseline, moderators, effects), fill = TRUE)
 }
 
 #' print.KIN_summary
-#' @param object meta_list object
+#' @param x meta_list object
 #' @param ... additional arguments passed to format_nicely
 #' @export
 
-print.KIN_summary = function(object, ...){
-  tab <- object
+print.KIN_summary = function(x, ...){
+  tab <- x
   tab$Predictor[attr(tab, "indent")] <- paste0("--",tab$Predictor[attr(tab, "indent")])
   names(tab) <-gsub("[$^{}_]","", names(tab))
 
@@ -441,7 +441,7 @@ print.KIN_summary = function(object, ...){
   vred <- crayon::make_style(grDevices::rgb(1,.2,.2))
   out <- gsub("\\-(?=[0-9])",vred("-"),out, perl = TRUE)
 
-  cat(crayon::blue(attr(object,"title")))
+  cat(crayon::blue(attr(x,"title")))
   cat("\n")
   cat(bar)
   cat("\n")
