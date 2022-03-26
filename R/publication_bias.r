@@ -7,7 +7,7 @@
 #' @param alpha the alpha threshold used in PET-PEESE. Defaults to 0.1 \(10\% as per Stanley 2017\)
 #' @details PET-PEESE uses meta-regression in order to adjust estimates for publication bias. When there is publication bias the sampling variance becomes correlated with effect size. By using the standard error (PET) or the sampling variance (PEESE) as moderators in a meta-regression, estimates (the intercept) can be made which partial out the correlation between effect size and variance. PET-PEESE first tests whether the intercept is a significant when controlling for the standard error of effects (p < 0.05) predictor of effect size. If it is, PEESE is used. Otherwise, PET is used.
 
-FPP = function(m, transf = function(x) x, round = 2, alpha = .05){
+FPP <- function(m, transf = function(x) x, round = 2, alpha = .05){
   if(methods::is(m, "meta_list")){
   m <- m$models$Baseline
   }
@@ -36,7 +36,7 @@ FPP = function(m, transf = function(x) x, round = 2, alpha = .05){
   pet_m <- eval(pet_call)
 
   pet_p <- summary(pet_m)$coefficients["Intercept","Pr(>|z|)"]
-  pet_intercept <- summary(pet_m)$coefficients["Estimate","Pr(>|z|)"]
+  pet_intercept <- summary(pet_m)$coefficients["Intercept","Estimate"]
 
     if (pet_p < alpha & pet_intercept > 0) {
     peese_m <- eval(peese_call)
