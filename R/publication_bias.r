@@ -36,8 +36,9 @@ FPP = function(m, transf = function(x) x, round = 2, alpha = .05){
   pet_m <- eval(pet_call)
 
   pet_p <- summary(pet_m)$coefficients["Intercept","Pr(>|z|)"]
+  pet_intercept <- summary(pet_m)$coefficients["Estimate","Pr(>|z|)"]
 
-    if (pet_p < alpha) {
+    if (pet_p < alpha & pet_intercept > 0) {
     peese_m <- eval(peese_call)
       adj_m <- peese_m
       meth <- "PEESE"
