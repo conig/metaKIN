@@ -344,13 +344,14 @@ Author and year were automatically detected by looking for clues like
 
 ## Funnel plots
 
-A function is provided to create a funnel plot from metaSEM models. An
-egger’s asymmetry test is also automatically reported to try and detect
-publication bias.
+A function is provided to create a funnel plot from metaSEM models. Data
+can be aggregated to cluster for ease of interpretation. Trim and fill
+can be employed using an argument.
 
 ``` r
 moderation_object2 |> 
-  funnel_plot(density = T, xlab = "logOdds")
+  funnel_plot(density = TRUE, xlab = "lnOR",
+              aggregate = TRUE, trimfill = TRUE)
 ```
 
 ![](README_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
