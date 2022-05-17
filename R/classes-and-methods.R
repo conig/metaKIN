@@ -7,6 +7,9 @@
   suppressPackageStartupMessages(attachNamespace("metaSEM"))
     suppressPackageStartupMessages(attachNamespace("OpenMx"))
   }
+
+  message("metaKIN is under active development.\nReport bugs to: https://github.com/conig/metaKIN/issues")
+
 }
 
 

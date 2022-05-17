@@ -1,6 +1,7 @@
 
 .onLoad <- function(...) {
   s3_register("papaja::apa_table", "meta_list")
+  s3_register("papaja::apa_table", "metaKIN_table")
   invisible()
 }
 
@@ -82,5 +83,42 @@ apa_table.meta_list <-
     escape = escape,
     span_text_columns = span_text_columns,
     format.args = format.args
+  )
+}
+
+#' apa_table.metaKIN_table
+
+apa_table.metaKIN_table <-
+  function(x,
+           caption = NULL,
+           note = NULL,
+           added_stub_head = NULL,
+           col_spanners = NULL,
+           midrules = NULL,
+           placement = "tbp",
+           landscape = FALSE,
+           font_size = NULL,
+           escape = FALSE,
+           span_text_columns = TRUE,
+           format.args = NULL,
+           ...) {
+
+  class(x) <- "data.frame"
+
+  papaja::apa_table(
+    x,
+    caption = caption,
+    note = note,
+    added_stub_head = added_stub_head,
+    col_spanners = col_spanners,
+    midrules = midrules,
+    placement = placement,
+    landscape = landscape,
+    font_size = font_size,
+    escape = escape,
+    span_text_columns = span_text_columns,
+    format.args = format.args,
+    stub_indents = list(attr(x, "indent")),
+    ...
   )
 }

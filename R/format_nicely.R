@@ -160,6 +160,7 @@ format_nicely = function(meta_list,
     tab$"$R^2_{(3)}$" <- NULL
   tab[is.na(tab)] <- ""
   attr(tab, "indent") <- indent
+  class(tab) <- c("data.table", "metaKIN_table", "data.frame")
   tab
 }
 
