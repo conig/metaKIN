@@ -39,9 +39,8 @@ library(metaKIN)
 ```
 
     ## meta[1m[31mKIN[39m[22m 0.1.3
-
-    ## metaKIN is under active development.
-    ## Report bugs to: https://github.com/conig/metaKIN/issues
+    ## Under active development.
+    ## Report bugs to https://github.com/conig/metaKIN/issues
 
 ``` r
 dat <- metaSEM::Bornmann07

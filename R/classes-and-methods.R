@@ -1,14 +1,18 @@
 
 .onAttach <- function(libname, pkgname) {
-  packageStartupMessage(paste("meta\033[1m\033[31mKIN\033[39m\033[22m",
-                              utils::packageVersion("metaKIN")))
+  packageStartupMessage(
+    paste0(
+      crayon::underline(paste("meta\033[1m\033[31mKIN\033[39m\033[22m",
+      utils::packageVersion("metaKIN"))),
+      "\n",
+      "Under active development.\nReport bugs: ", crayon::hyperlink("https://github.com/conig/metaKIN/issues","https://github.com/conig/metaKIN/issues")
+    )
+  )
 
   if(!"metaSEM" %in% .packages()){
   suppressPackageStartupMessages(attachNamespace("metaSEM"))
     suppressPackageStartupMessages(attachNamespace("OpenMx"))
   }
-
-  message("metaKIN is under active development.\nReport bugs to: https://github.com/conig/metaKIN/issues")
 
 }
 
