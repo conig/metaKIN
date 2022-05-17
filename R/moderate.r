@@ -15,10 +15,10 @@ moderation_instructions = function(...){
 #' @param m a meta3 object
 #' @param ... a named list of moderators
 #' @param moderators You can feed a named character vector for consistent moderators across models
-#' @param debug If true, ... contents are returned
+#' @param na.adjust a bool. Should the baseline model be adjusted to use the same data as a moderated model when missing covariate data is present
 #' @export
 
-moderate = function(m,...,moderators = NULL, debug = FALSE){
+moderate = function(m,...,moderators = NULL, na.adjust = TRUE){
   call = match.call()
   m$call$model.name = "Baseline"
   attr(m, "Baseline") <- TRUE
@@ -29,16 +29,13 @@ moderate = function(m,...,moderators = NULL, debug = FALSE){
     elip <- moderators
   }
 
-  if(debug){
-    return(elip)
-  }
   names(elip)[names(elip) == ""] = gsub("\\.{1,}","_",make.names(elip[names(elip) == ""]))
 
   parent_envir <- parent.frame()
 
   models <- lapply(seq_along(elip), function(x) {
     moderated_model <-
-      mlm(m, formula = elip[x], model.name = names(elip)[x], .envir = parent_envir)
+      mlm(m, formula = elip[x], model.name = names(elip)[x], .envir = parent_envir, na.adjust = na.adjust)
     attr(moderated_model, "Baseline") <- FALSE
     moderated_model
   })

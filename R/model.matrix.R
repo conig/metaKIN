@@ -177,9 +177,10 @@ try_even_harder = function(model, extraTries = 25) {
 #' @param formula formula passed to model.matrix
 #' @param model.name String. Name your model (optional)
 #' @param .envir the environment to run in
+#' @param na.adjust a bool. Should the baseline model be adjusted to use the same data as a moderated model when missing covariate data is present
 #' @export
 
-mlm <- function(m, formula, model.name = NULL, .envir = parent.frame()){
+mlm <- function(m, formula, model.name = NULL, .envir = parent.frame(), na.adjust = TRUE){
   formula = as.character(formula)[as.character(formula) != "~"]
   formula <- gsub("^~","",formula)
 
@@ -195,24 +196,20 @@ mlm <- function(m, formula, model.name = NULL, .envir = parent.frame()){
   }
 
   call = m$call
-  .dataName = call$data
 
-  .internalData <- eval(.dataName, envir = .envir)
+  # .internalData <- eval(call$data, envir = .envir)
 
-  m$call$data <- as.name(".internalData")
-
-  if(.dataName == ".dataName") stop("data cannot be named .dataName")
-
-  matrx_call <- call("meta_matrix", formula = formula, data = as.name(".internalData"))
+  matrx_call <- call("meta_matrix", formula = formula, data = call$data)
 
   matrx <- eval(
     call(
       "meta_matrix",
       formula = formula,
-      data = as.name(".internalData"),
+      data = call$data,
       intercept = TRUE,
       warn = FALSE
-    )
+    ),
+    envir = .envir
   )
   if(is.null(matrx)) return(NA)
 
@@ -224,10 +221,8 @@ mlm <- function(m, formula, model.name = NULL, .envir = parent.frame()){
 
   call$x = matrx_call
   call$model.name = model.name
-  call$data <- as.name(".internalData")
 
-
-  m_out <- eval(call)
+  m_out <- eval(call, envir = .envir)
 
   status <- m_out$mx.fit$output$status[[1]]
   SEs <- summary(m_out)$coefficients["Std.Error"]
@@ -242,13 +237,25 @@ mlm <- function(m, formula, model.name = NULL, .envir = parent.frame()){
 
   KN <- get_kn(m_out, param_names)
 
-  m_out$call$data <- .dataName
-  m_out$call$x$data <- .dataName
+  if(nrow(m_out$data) < nrow(m$data) & na.adjust){
+    warning("ANOVA: baseline model has been adjusted due to missing data in covariance matrix")
+    adjusted_dat <- m_out$data
+    new_baseline_call <- as.list(m$call)
+    new_baseline_call[c("y","v","cluster", "data")] <- sapply(c("y","v","cluster", "adjusted_dat"), as.name)
+    baseline <- eval(as.call(new_baseline_call))
+
+   p <- stats::anova(baseline, m)$p[2]
+   if(p < 0.05) warning("ANOVA: adjusted baseline is significantly different to the original baseline. Missing data likely correlated with effect size.")
+
+  } else {
+    baseline <- m
+  }
 
   out <- list(model = m_out,
-        anova = stats::anova(m_out, m),
+        anova = stats::anova(m_out, baseline),
        parameter_names = param_names,
        k_n = KN)
+
   class(out) <- "metalm"
   out
 

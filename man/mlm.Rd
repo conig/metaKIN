@@ -4,7 +4,7 @@
 \alias{mlm}
 \title{mlm}
 \usage{
-mlm(m, formula, model.name = NULL, .envir = parent.frame())
+mlm(m, formula, model.name = NULL, .envir = parent.frame(), na.adjust = TRUE)
 }
 \arguments{
 \item{m}{meta3 object}
@@ -14,6 +14,8 @@ mlm(m, formula, model.name = NULL, .envir = parent.frame())
 \item{model.name}{String. Name your model (optional)}
 
 \item{.envir}{the environment to run in}
+
+\item{na.adjust}{a bool. Should the baseline model be adjusted to use the same data as a moderated model when missing covariate data is present}
 }
 \description{
 Meta regression for meta3 objects

@@ -4,7 +4,7 @@
 \alias{moderate}
 \title{moderate}
 \usage{
-moderate(m, ..., moderators = NULL, debug = FALSE)
+moderate(m, ..., moderators = NULL, na.adjust = TRUE)
 }
 \arguments{
 \item{m}{a meta3 object}
@@ -13,7 +13,7 @@ moderate(m, ..., moderators = NULL, debug = FALSE)
 
 \item{moderators}{You can feed a named character vector for consistent moderators across models}
 
-\item{debug}{If true, ... contents are returned}
+\item{na.adjust}{a bool. Should the baseline model be adjusted to use the same data as a moderated model when missing covariate data is present}
 }
 \description{
 Create a list of meta3 objects moderated by predictors
