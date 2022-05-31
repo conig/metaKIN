@@ -33,6 +33,7 @@ add_diamond = function(plot, data, fill = "grey20", colour = NA) {
 #' @param effect_label a string. If provided relabels "effect size" in facetting.
 #' @param transf a function. If supplied effect sizes are transformed by this function
 #' @param baseline_name a string. The label for the baseline model
+#' @param xlim passed to scale_x_continous
 #' @param factor.levels  a character vector. If supplied, only the factor.levels specified will be plotted.
 #' @param facet_by a colname. Facets effect sizes by a supplied variable.
 #' @param vline a scalar. Dictates the x-intercept (the dashed line).
@@ -54,6 +55,7 @@ forest_plot <- function(model,
                         effect_label = NULL,
                         transf = NULL,
                         baseline_name = "Pooled estimate",
+                        xlim = NULL,
                         factor.levels = NULL,
                         facet_by = NULL,
                         vline = 0,
@@ -139,6 +141,7 @@ forest_plot <- function(model,
                          xmin = lower,
                          xmax = upper
                        )) +
+    ggplot2::scale_x_continuous(limits = xlim) +
     ggplot2::labs(x = xlab, y = "") +
     ggplot2::facet_grid(rows = ggplot2::vars(setting),
                         scales = 'free',

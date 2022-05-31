@@ -71,7 +71,6 @@ apa_table.meta_list <-
 
   papaja::apa_table(
     x,
-    stub_indents = list(attr(x, "indent")),
     caption = caption,
     note = note,
     added_stub_head = added_stub_head,

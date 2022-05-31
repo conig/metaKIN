@@ -51,7 +51,6 @@ moderate = function(m,...,moderators = NULL, na.adjust = TRUE){
     models = models
   )
   class(out) <- "meta_list"
-
   model_info <- do.call(rbind,lapply(out$models, mlm_overview))
 
   #Flag to the users if models have a mx status of greater than one (which indicates issues)

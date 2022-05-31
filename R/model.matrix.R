@@ -33,9 +33,15 @@ meta_matrix <- function(formula, data, intercept = FALSE, warn = TRUE){
   names(var0) <- colnames(matrx)
 
   # Determine predictors with variance.
-
+  includes_intercept <- FALSE
   for(v in names(var0)){
     if(!v %in% colnames(matrx.invariant)){
+      next
+    }
+    # If there is not already a variable which is all 1s. Mark as intercept and skip
+    if(all(matrx.invariant[,v, drop = TRUE] == 1) & !includes_intercept){
+      includes_intecept <- TRUE
+      var0[v] <- FALSE
       next
     }
 
@@ -47,8 +53,9 @@ meta_matrix <- function(formula, data, intercept = FALSE, warn = TRUE){
 
   var0[names(var0) == "(Intercept)"] <- FALSE
 
+  sum_var0 <- sum(var0)
 
-  if (sum(var0) != 0) {
+  if (sum(sum_var0) != 0) {
     if (warn) {
       warning(
         sum(var0),
@@ -234,7 +241,6 @@ mlm <- function(m, formula, model.name = NULL, .envir = parent.frame(), na.adjus
   }
 
   param_names <- colnames(matrx)[!colnames(matrx) %in% "(Intercept)"]
-
   KN <- get_kn(m_out, param_names)
 
   if(nrow(m_out$data) < nrow(m$data) & na.adjust){
@@ -242,19 +248,33 @@ mlm <- function(m, formula, model.name = NULL, .envir = parent.frame(), na.adjus
     adjusted_dat <- m_out$data
     new_baseline_call <- as.list(m$call)
     new_baseline_call[c("y","v","cluster", "data")] <- sapply(c("y","v","cluster", "adjusted_dat"), as.name)
+
     baseline <- eval(as.call(new_baseline_call))
 
-   p <- stats::anova(baseline, m)$p[2]
-   if(p < 0.05) warning("ANOVA: adjusted baseline is significantly different to the original baseline. Missing data likely correlated with effect size.")
+    tau_fixed <- attr(m_out, "fixed_tau")
+    if (!is.null(tau_fixed)) {
+      # Refit baseline with constraied Tau value to match comparator
+      # Use basleine's tau value to maintain model characteristics
+      baseline_coefs <- summary(baseline)$coefficients
+      if (tau_fixed == "Tau2_3") {
+        new_baseline_call$RE3.constraints <- baseline_coefs["Tau2_3","Estimate"]
+      }
+      if (tau_fixed == "Tau2_2") {
+        new_baseline_call$RE2.constraints <- baseline_coefs["Tau2_2","Estimate"]
+      }
+      baseline <- eval(as.call(new_baseline_call))
+    }
 
   } else {
     baseline <- m
   }
 
-  out <- list(model = m_out,
-        anova = stats::anova(m_out, baseline),
-       parameter_names = param_names,
-       k_n = KN)
+  out <- list(
+    model = m_out,
+    anova = stats::anova(m_out, baseline),
+    parameter_names = param_names,
+    k_n = KN
+  )
 
   class(out) <- "metalm"
   out
