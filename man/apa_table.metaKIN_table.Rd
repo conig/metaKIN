@@ -8,6 +8,7 @@ apa_table.metaKIN_table(
   x,
   caption = NULL,
   note = NULL,
+  stub_indents = NULL,
   added_stub_head = NULL,
   col_spanners = NULL,
   midrules = NULL,

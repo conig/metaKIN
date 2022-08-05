@@ -243,15 +243,22 @@ mlm <- function(m, formula, model.name = NULL, .envir = parent.frame(), na.adjus
   param_names <- colnames(matrx)[!colnames(matrx) %in% "(Intercept)"]
   KN <- get_kn(m_out, param_names)
 
-  if(nrow(m_out$data) < nrow(m$data) & na.adjust){
+  row_mismatch <- nrow(m_out$data) < nrow(m$data) & na.adjust
+  tau_fixed <- attr(m_out, "fixed_tau")
+
+  # Adjust baseline for comparison if needed ------------------------
+  if(row_mismatch | !is.null(tau_fixed)){
+
+    if(row_mismatch){
     warning("ANOVA: baseline model has been adjusted due to missing data in covariance matrix")
+    }
     adjusted_dat <- m_out$data
     new_baseline_call <- as.list(m$call)
     new_baseline_call[c("y","v","cluster", "data")] <- sapply(c("y","v","cluster", "adjusted_dat"), as.name)
 
     baseline <- eval(as.call(new_baseline_call))
 
-    tau_fixed <- attr(m_out, "fixed_tau")
+
     if (!is.null(tau_fixed)) {
       # Refit baseline with constraied Tau value to match comparator
       # Use basleine's tau value to maintain model characteristics
@@ -469,4 +476,13 @@ dummy_matrix = function(x, levels = NULL, pattern = ",") {
   return(out)
 }
 
+#' meta3_OK
+#'
+#' Check whether meta3 status is OK
+#' @details This function looks up the OpenMx status code. If 0 or 1 returns TRUE, else returns FALSE
+#' @export
 
+meta3_OK <- function(m) {
+  methods::is(m, "meta3")
+  m$mx.fit$output$status$code[[1]] %in% c(0, 1)
+}

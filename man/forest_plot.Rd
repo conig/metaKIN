@@ -11,6 +11,7 @@ forest_plot(
   effect_label = NULL,
   transf = NULL,
   baseline_name = "Pooled estimate",
+  xlim = NULL,
   factor.levels = NULL,
   facet_by = NULL,
   vline = 0,
@@ -37,6 +38,8 @@ forest_plot(
 \item{transf}{a function. If supplied effect sizes are transformed by this function}
 
 \item{baseline_name}{a string. The label for the baseline model}
+
+\item{xlim}{passed to scale_x_continous}
 
 \item{factor.levels}{a character vector. If supplied, only the factor.levels specified will be plotted.}
 

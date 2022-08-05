@@ -23,6 +23,83 @@ add_diamond = function(plot, data, fill = "grey20", colour = NA) {
   plot
 }
 
+#' forest_plot_data
+#'
+#' Create data ready for the creation of a forest plot
+#' @param model
+
+forest_plot_data <- function(model,
+                             moderators,
+                             transf,
+                             baseline_name,
+                             factor.levels,
+                             author,
+                             year,
+                             envir = parent.frame()) {
+  # Input checks
+  if (!methods::is(model, "meta3") &
+      !methods::is(model, "meta_list"))
+    stop("model must be meta3 or meta_list")
+
+  if (methods::is(model, "meta3"))
+    model <- moderate(model)
+
+  # Extract data
+  df <- stats::coef(model)
+  df <- stats::coef(model)
+  df$est <- transf(df$est)
+  df$lower <- transf(df$lower)
+  df$upper <- transf(df$upper)
+  df$cluster <- as.character(df$cluster)
+
+  # Filter to requested moderators
+  df <-
+    df[is.na(moderation) |
+         moderation %in% c(moderators, "Baseline"), ]
+
+  source_data <-
+    eval(model$models$Baseline$call$data, envir = envir)
+
+  if (is.null(author))
+    author <- find_author(source_data)
+  if (is.null(year))
+    year <- find_year(source_data)
+
+  cluster <- as.character(model$models$Baseline$call$cluster)
+
+  key <-
+data.table::data.table(source_data)[, c(cluster, year, author), with = FALSE]
+  names(key) = c("cluster", "year", "author")
+  key <- unique(key[, cluster := as.character(cluster)])
+  if (max(table(key$cluster)) > 1)
+    warning("Inconsistent author and year for at least one cluster. Check data.")
+
+  plot_dat <- merge(df, key, all.x = TRUE, by = "cluster")
+
+  plot_dat[type == "Effect sizes"]$cluster <-
+    with(plot_dat[type == "Effect sizes"], paste(author, year))
+
+  # Order plot data
+  plot_dat <- plot_dat[order(plot_dat$year, plot_dat$cluster), ]
+
+  plot_dat$cluster <-
+    factor(plot_dat$cluster, levels = unique(plot_dat$cluster))
+
+  mod_levels <-
+    levels(droplevels(plot_dat[type == "moderator level"]$cluster))
+  effect_levels <-
+    levels(droplevels(plot_dat[type == "Effect sizes"]$cluster))
+  plot_dat$cluster <-
+    factor(plot_dat$cluster,
+           levels = c("Baseline", mod_levels, effect_levels))
+  levels(plot_dat$cluster)[1] <- baseline_name
+
+
+  plot_dat$position <- as.numeric(plot_dat$cluster)
+  plot_dat
+}
+
+
 #' forest_plot
 #'
 #' Produce a forest plot for meta_list objects
@@ -68,71 +145,25 @@ forest_plot <- function(model,
                         moderator_diamond = FALSE,
                         font = "serif",
                         envir = parent.frame()) {
+  mods <- unlist(list(...))
 
   if (is.null(transf)) {
     transf <- function(x)
       x
   }
-  if (methods::is(model, "meta3"))
-    model <- moderate(model)
+    plot_dat <-
+    forest_plot_data(
+      model,
+      transf = transf,
+      moderators = mods,
+      baseline_name = baseline_name,
+      factor.levels = factor.levels,
+      author = author,
+      year = year,
+      envir = envir
+    )
 
-  .internalDat <- stats::coef(model)
-  .internalDat$est <- transf(.internalDat$est)
-  .internalDat$lower <- transf(.internalDat$lower)
-  .internalDat$upper <- transf(.internalDat$upper)
   vline   <- transf(vline)
-  .internalDat$order <- seq_along(.internalDat$est)
-
-  if (!methods::is(model, "meta_list"))
-    stop("model is a ", class(model), ". model class must be a 'meta_list'")
-
-  # Filter to requested moderators
-  mod <- unlist(list(...))
-  .internalDat <-
-    .internalDat[is.na(moderation) |
-                   moderation %in% c(mod, "Baseline"),]
-
-  source_data <- eval(model$models$Baseline$call$data, envir = envir)
-
-  if (is.null(author))
-    author <- find_author(source_data)
-  if (is.null(year))
-    year <- find_year(source_data)
-  cluster <- as.character(model$models$Baseline$call$cluster)
-
-  key <-
-    data.table::data.table(source_data)[, c(cluster, year, author), with = FALSE]
-  names(key) = c("cluster", "year", "author")
-  key <- unique(key[, cluster := as.character(cluster)])
-  if (max(table(key$cluster)) > 1)
-    warning("Inconsistent author and year for at least one cluster. Check data.")
-
-  plot_dat <- merge(.internalDat, key, all.x = TRUE, by = "cluster")
-
-  plot_dat$year[is.na(plot_dat$year)] <-
-    plot_dat$order[is.na(plot_dat$year)]
-
-
-  plot_dat[type == "Effect sizes"]$cluster <-
-    with(plot_dat[type == "Effect sizes"], paste(author, year))
-
-  # Order plot data
-  plot_dat <- plot_dat[order(plot_dat$year),]
-
-  plot_dat$cluster <- factor(plot_dat$cluster, levels = unique(plot_dat$cluster))
-
-  mod_levels <-
-    levels(droplevels(plot_dat[type == "moderator level"]$cluster))
-  effect_levels <-
-    levels(droplevels(plot_dat[type == "Effect sizes"]$cluster))
-  plot_dat$cluster <-
-    factor(plot_dat$cluster,
-           levels = c("Baseline", mod_levels, effect_levels))
-  levels(plot_dat$cluster)[1] <- baseline_name
-
-
-  plot_dat$position <- as.numeric(plot_dat$cluster)
-
 
   p <- ggplot2::ggplot(plot_dat,
                        ggplot2::aes(
@@ -148,7 +179,7 @@ forest_plot <- function(model,
                         space = 'free_y') +
     ggplot2::theme_classic() +
     ggplot2::geom_point(data = plot_dat) +
-    ggplot2::geom_errorbar(data = plot_dat[type == "Effect sizes",], width = .1) +
+    ggplot2::geom_errorbar(data = plot_dat[type == "Effect sizes", ], width = .1) +
     ggplot2::geom_vline(xintercept = vline,
                         #add horizontal line
                         color = 'black',
@@ -160,12 +191,15 @@ forest_plot <- function(model,
     types = plot_dat$cluster[plot_dat$type == "moderator level"]
     for (i in types) {
       p <-
-        add_diamond(p, plot_dat[plot_dat$cluster == i,], fill = "white", colour = "grey20")
+        add_diamond(p,
+                    plot_dat[plot_dat$cluster == i, ],
+                    fill = "white",
+                    colour = "grey20")
     }
   } else {
-    p = p + ggplot2::geom_errorbar(data = plot_dat[type == "moderator level",] , width = .25) + ggplot2::geom_point(
+    p = p + ggplot2::geom_errorbar(data = plot_dat[type == "moderator level", ] , width = .25) + ggplot2::geom_point(
       #add summary points
-      data = plot_dat[type == "moderator level", ],
+      data = plot_dat[type == "moderator level",],
       color = 'black',
       shape = moderator.shape,
       size = moderator.size,
@@ -173,11 +207,11 @@ forest_plot <- function(model,
     )
   }
 
-      if (!is.null(font))
+  if (!is.null(font))
     p <-
     p + ggplot2::theme(text = ggplot2::element_text(family = font))
 
-  if (nrow(plot_dat[plot_dat$setting == "Pooled",]) < 2) {
+  if (nrow(plot_dat[plot_dat$setting == "Pooled", ]) < 2) {
     p <-
       p + ggplot2::theme(
         strip.text.y = ggplot2::element_text(angle = 0),
@@ -185,7 +219,6 @@ forest_plot <- function(model,
         text = element_text(family = font)
       )
   }
-
 
   p
 
@@ -201,15 +234,15 @@ find_year = function(data) {
   count_chars = lapply(seq_along(names(data)), function(i) {
     suppressWarnings(var <-
                        as.numeric(as.character(data[, names(data)[i]]))) #strip factors, make numeric
-    year = strsplit(as.character(Sys.Date()), split = "-")[[1]][1]
-    var = ifelse(var > as.numeric(year) + 1 , NA, var)
-    var = ifelse(var < 1800, NA, var)
-    n = nchar(as.character(var)) == 4
+    year <- strsplit(as.character(Sys.Date()), split = "-")[[1]][1]
+    var <- ifelse(var > as.numeric(year) + 1 , NA, var)
+    var <- ifelse(var < 1800, NA, var)
+    n <- nchar(as.character(var)) == 4
     sum(n, na.rm = T) / length(n)
   })
-  string = names(data)[which.max(count_chars)]
+  string <- names(data)[which.max(count_chars)]
   message(paste0("year was not specified, using: '", string, "'."))
-  return(string)
+  string
 }
 
 
@@ -219,12 +252,13 @@ find_year = function(data) {
 #' @param data data object
 
 find_author = function(data) {
-  data = data.frame(data)
-  vars = names(data)
+  data <- data.frame(data)
+  vars <- names(data)
   has_author_title =  as.numeric(agrepl("author", tolower(vars)))
-  et_al = lapply(vars, function(i) {
-    num = grepl("et al", tolower(data[, i]))
-    journal = grepl("journal", tolower(data[, i])) * 2
+  et_al <- lapply(vars, function(i) {
+    temp <- tolower(iconv(data[,i], "UTF-8"))
+    num <- grepl("et al", temp)
+    journal <- grepl("journal", tolower(temp)) * 2
     sum(num, na.rm = T) - sum(journal, na.rm = T)
   })
   score = has_author_title + unlist(et_al)
@@ -499,10 +533,18 @@ moderation_matrix <- function(..., effect_size = "Effect size", moderators = NUL
   # ------- fix cluster order
 
   cluster_levels <- levels(as.factor(graph_dat$cluster))
-  cluster_levels <- cluster_levels[cluster_levels != "Baseline"]
+
+  # Make Intercept the top factor level
+  if("Intercept" %in% cluster_levels){
+   cluster_levels <- cluster_levels[!cluster_levels %in% "Intercept"]
+   cluster_levels <- c("Intercept", cluster_levels)
+  }
+
+  # Make baseline the last factor level
+  cluster_levels <- cluster_levels[!cluster_levels %in% "Baseline"]
   cluster_levels <- c(cluster_levels, "Baseline")
 
-  graph_dat$cluster = factor(graph_dat$cluster, levels = rev(cluster_levels))
+  graph_dat$cluster = factor(graph_dat$cluster, levels = cluster_levels)
 
   # prepare significance -------
 
@@ -518,10 +560,16 @@ moderation_matrix <- function(..., effect_size = "Effect size", moderators = NUL
 
   if(!is.null(black)){
 
+    if(!all(names(black) %in% sig_dat$outcome)){
+      stop("At least one model name in the argument black could not be found")
+    }
+    if(!all(black %in% sig_dat$moderation)){
+      stop("At least one moderator name in the argument black could not be found")
+    }
+
     black <- unlist(sapply(seq_along(black), function(i){
       paste(names(black)[i], black[[i]])
     }))
-
   sig_dat$black <- paste(sig_dat$outcome, sig_dat$moderation) %in% black
 
   }else{
@@ -532,9 +580,14 @@ moderation_matrix <- function(..., effect_size = "Effect size", moderators = NUL
       for (i in seq_along(replace)) {
         final_dat$cluster <-
           gsub(names(replace)[i], replace[i], final_dat$cluster)
+        cluster_levels <-
+           gsub(names(replace)[i], replace[i], cluster_levels)
       }
-      final_dat$cluster <- factor(final_dat$cluster, levels = unique(final_dat$cluster))
+
+      final_dat$cluster <- factor(final_dat$cluster, levels = cluster_levels)
     }
+
+  final_dat$cluster <- factor(final_dat$cluster, levels = rev(cluster_levels))
 
   p <- ggplot(final_dat, aes(
     x = y,

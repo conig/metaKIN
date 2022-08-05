@@ -91,6 +91,7 @@ apa_table.metaKIN_table <-
   function(x,
            caption = NULL,
            note = NULL,
+           stub_indents = NULL,
            added_stub_head = NULL,
            col_spanners = NULL,
            midrules = NULL,
@@ -104,10 +105,15 @@ apa_table.metaKIN_table <-
 
   class(x) <- "data.frame"
 
+  if(is.null(stub_indents)){
+    stub_indents <- list(attr(x, "indent"))
+  }
+
   papaja::apa_table(
     x,
     caption = caption,
     note = note,
+    stub_indents = stub_indents,
     added_stub_head = added_stub_head,
     col_spanners = col_spanners,
     midrules = midrules,
@@ -117,7 +123,6 @@ apa_table.metaKIN_table <-
     escape = escape,
     span_text_columns = span_text_columns,
     format.args = format.args,
-    stub_indents = list(attr(x, "indent")),
     ...
   )
 }

@@ -20,6 +20,10 @@ moderation_instructions = function(...){
 
 moderate = function(m,...,moderators = NULL, na.adjust = TRUE){
   call = match.call()
+  # Safety checks ----------------------------------
+  if(!methods::is(m, "meta3")) stop("Can only use on meta3 objects")
+  if(!m$mx.fit$output$status[[1]] %in% c(0, 1)) stop("Baseline model Mx status indicates failure to converge")
+
   m$call$model.name = "Baseline"
   attr(m, "Baseline") <- TRUE
   elip = sapply(rlang::enexprs(...), deparse)
