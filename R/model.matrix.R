@@ -479,6 +479,7 @@ dummy_matrix = function(x, levels = NULL, pattern = ",") {
 #' meta3_OK
 #'
 #' Check whether meta3 status is OK
+#' @param m meta3 model
 #' @details This function looks up the OpenMx status code. If 0 or 1 returns TRUE, else returns FALSE
 #' @export
 

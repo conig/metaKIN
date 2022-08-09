@@ -21,6 +21,35 @@ apa_table.metaKIN_table(
   ...
 )
 }
+\arguments{
+\item{x}{passed to papaja::apa_table}
+
+\item{caption}{passed to papaja::apa_table}
+
+\item{note}{passed to papaja::apa_table}
+
+\item{stub_indents}{passed to papaja::apa_table}
+
+\item{added_stub_head}{passed to papaja::apa_table}
+
+\item{col_spanners}{passed to papaja::apa_table}
+
+\item{midrules}{passed to papaja::apa_table}
+
+\item{placement}{passed to papaja::apa_table}
+
+\item{landscape}{passed to papaja::apa_table}
+
+\item{font_size}{passed to papaja::apa_table}
+
+\item{escape}{passed to papaja::apa_table}
+
+\item{span_text_columns}{passed to papaja::apa_table}
+
+\item{format.args}{passed to papaja::apa_table}
+
+\item{...}{passed to papaja::apa_table}
+}
 \description{
-apa_table.metaKIN_table
+format_nicely method for apa_table
 }

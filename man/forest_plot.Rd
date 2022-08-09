@@ -12,7 +12,6 @@ forest_plot(
   transf = NULL,
   baseline_name = "Pooled estimate",
   xlim = NULL,
-  factor.levels = NULL,
   facet_by = NULL,
   vline = 0,
   author = NULL,
@@ -23,7 +22,8 @@ forest_plot(
   summary.size = 4,
   moderator_diamond = FALSE,
   font = "serif",
-  envir = parent.frame()
+  envir = parent.frame(),
+  return_data = FALSE
 )
 }
 \arguments{
@@ -40,8 +40,6 @@ forest_plot(
 \item{baseline_name}{a string. The label for the baseline model}
 
 \item{xlim}{passed to scale_x_continous}
-
-\item{factor.levels}{a character vector. If supplied, only the factor.levels specified will be plotted.}
 
 \item{facet_by}{a colname. Facets effect sizes by a supplied variable.}
 
@@ -64,6 +62,8 @@ forest_plot(
 \item{font}{A string. The name of a font family. Defaults to serif}
 
 \item{envir}{the calling environment to retrieve model data by name}
+
+\item{return_data}{if TRUE, plotting data is returned and plotting does not occur}
 }
 \description{
 Produce a forest plot for meta_list objects

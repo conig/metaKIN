@@ -86,7 +86,7 @@ report_baseline = function(x, rmarkdown = FALSE, round = 2, transf = function(x)
 report_i2 = function(x, rmarkdown = FALSE){
   call = match.call()
   envir = sys.parent()
-  if(class(x) != "name") x <- call$x
+  if(!methods::is(x, "name")) x <- call$x
   stat_i2_2 = rmarkdown_wrap(glue::glue('get_val({x}, "I2_2%")'), rmarkdown = rmarkdown, envir = envir)
   stat_i2_3 = rmarkdown_wrap(glue::glue('get_val({x}, "I2_3%")'), rmarkdown = rmarkdown, envir = envir)
   mess = glue::glue("The heterogeneity at level 2 was {stat_i2_2}. The heterogeneity at level 3 was {stat_i2_3}.")
@@ -98,7 +98,7 @@ report_moderators = function(x, rmarkdown = FALSE, digits = 2){
   call = match.call()
   #return(call)
   mods = get_sig_moderators(x)
-  if(class(x) != "name") x <- call$x
+  if(!methods::is(x, "name")) x <- call$x
   envir = sys.parent()
 
   if(length(mods) == 0){

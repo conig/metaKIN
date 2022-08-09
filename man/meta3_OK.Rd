@@ -6,6 +6,9 @@
 \usage{
 meta3_OK(m)
 }
+\arguments{
+\item{m}{meta3 model}
+}
 \description{
 Check whether meta3 status is OK
 }

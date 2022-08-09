@@ -86,6 +86,22 @@ apa_table.meta_list <-
 }
 
 #' apa_table.metaKIN_table
+#'
+#' format_nicely method for apa_table
+#' @param x passed to papaja::apa_table
+#' @param caption passed to papaja::apa_table
+#' @param note passed to papaja::apa_table
+#' @param stub_indents passed to papaja::apa_table
+#' @param added_stub_head passed to papaja::apa_table
+#' @param col_spanners passed to papaja::apa_table
+#' @param midrules passed to papaja::apa_table
+#' @param placement passed to papaja::apa_table
+#' @param landscape passed to papaja::apa_table
+#' @param font_size passed to papaja::apa_table
+#' @param escape passed to papaja::apa_table
+#' @param span_text_columns passed to papaja::apa_table
+#' @param format.args passed to papaja::apa_table
+#' @param ... passed to papaja::apa_table
 
 apa_table.metaKIN_table <-
   function(x,

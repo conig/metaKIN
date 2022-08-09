@@ -26,13 +26,18 @@ add_diamond = function(plot, data, fill = "grey20", colour = NA) {
 #' forest_plot_data
 #'
 #' Create data ready for the creation of a forest plot
-#' @param model
+#' @param model meta3 or meta_list
+#' @param moderators a string of moderators
+#' @param transf function to transform results
+#' @param baseline_name string to rename baseline model
+#' @param author string, name of author column
+#' @param year string, name of year column
+#' @param envir environment where source dataset is located
 
 forest_plot_data <- function(model,
                              moderators,
                              transf,
                              baseline_name,
-                             factor.levels,
                              author,
                              year,
                              envir = parent.frame()) {
@@ -111,7 +116,6 @@ data.table::data.table(source_data)[, c(cluster, year, author), with = FALSE]
 #' @param transf a function. If supplied effect sizes are transformed by this function
 #' @param baseline_name a string. The label for the baseline model
 #' @param xlim passed to scale_x_continous
-#' @param factor.levels  a character vector. If supplied, only the factor.levels specified will be plotted.
 #' @param facet_by a colname. Facets effect sizes by a supplied variable.
 #' @param vline a scalar. Dictates the x-intercept (the dashed line).
 #' @param author the name of the author column
@@ -123,6 +127,7 @@ data.table::data.table(source_data)[, c(cluster, year, author), with = FALSE]
 #' @param moderator_diamond a bool. If true, diamond is created for moderators
 #' @param font A string. The name of a font family. Defaults to serif
 #' @param envir the calling environment to retrieve model data by name
+#' @param return_data if TRUE, plotting data is returned and plotting does not occur
 #' @import ggplot2
 #' @export
 
@@ -133,7 +138,6 @@ forest_plot <- function(model,
                         transf = NULL,
                         baseline_name = "Pooled estimate",
                         xlim = NULL,
-                        factor.levels = NULL,
                         facet_by = NULL,
                         vline = 0,
                         author = NULL,
@@ -144,7 +148,8 @@ forest_plot <- function(model,
                         summary.size = 4,
                         moderator_diamond = FALSE,
                         font = "serif",
-                        envir = parent.frame()) {
+                        envir = parent.frame(),
+                        return_data = FALSE) {
   mods <- unlist(list(...))
 
   if (is.null(transf)) {
@@ -157,11 +162,12 @@ forest_plot <- function(model,
       transf = transf,
       moderators = mods,
       baseline_name = baseline_name,
-      factor.levels = factor.levels,
       author = author,
       year = year,
       envir = envir
     )
+
+    if(return_data) return(plot_dat)
 
   vline   <- transf(vline)
 
