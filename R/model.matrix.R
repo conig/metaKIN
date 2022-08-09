@@ -223,7 +223,7 @@ mlm <- function(m, formula, model.name = NULL, .envir = parent.frame(), na.adjus
   includes_intercept = any(grepl("\\(Intercept\\)",colnames(matrx)))
 
   if(!includes_intercept){
-    call$intercept.constraints = 0
+    call$intercept.constraints <- 0
   }
 
   call$x = matrx_call
@@ -265,9 +265,11 @@ mlm <- function(m, formula, model.name = NULL, .envir = parent.frame(), na.adjus
       baseline_coefs <- summary(baseline)$coefficients
       if (tau_fixed == "Tau2_3") {
         new_baseline_call$RE3.constraints <- baseline_coefs["Tau2_3","Estimate"]
+        m_out$call$RE3.constraints <- attributes(m_out)$fixed_tau.originalvalue
       }
       if (tau_fixed == "Tau2_2") {
         new_baseline_call$RE2.constraints <- baseline_coefs["Tau2_2","Estimate"]
+        m_out$call$RE2.constraints <- attributes(m_out)$fixed_tau.originalvalue
       }
       baseline <- eval(as.call(new_baseline_call))
     }
