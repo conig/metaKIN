@@ -76,23 +76,41 @@ FPP <- function(m, transf = function(x) x, round = 2, alpha = .05){
 #' @param model a meta3 model
 #' @details multiple effect sizes per cluster are aggregated using a fixed effects meta-analysis
 
-aggregate_to_cluster <- function(model){
-if(methods::is(model, "meta_list")) model <- model$models[[1]]
+aggregate_to_cluster <- function(model) {
+  if (methods::is(model, "meta_list"))
+    model <- model$models[[1]]
 
   model_data <- data.table(model$data)
 
-  model_data[, {
+  .envir <- environment()
+  NA_y <- 0
 
-    if(nrow(.SD) == 1){
-      out <- list(y = .SD$y, v = .SD$v)
-    }else{
-    temp_mod <- metafor::rma(y, v, data = .SD, method = "FE")
-    out <- list(y = as.numeric(temp_mod$b), v = as.numeric(temp_mod$se^2))
+  aggr <- model_data[, {
+    if (all(is.na(.SD$y))){
+      out <- list(y = NA_real_, v = NA_real_)
+      assign("NA_y", NA_y + 1, envir = .envir)
     }
+
+    if (!all(is.na(.SD$y))) {
+      if (nrow(.SD) == 1) {
+        out <- list(y = .SD$y, v = .SD$v)
+      } else{
+        temp_mod <- metafor::rma(y, v, data = .SD, method = "FE")
+        out <-
+          list(y = as.numeric(temp_mod$b),
+               v = as.numeric(temp_mod$se ^ 2))
+      }
+    }
+
     out
   }
-       , by = cluster]
+  , by = cluster]
 
+  if (NA_y > 0){
+    warning(NA_y, " cluster(s) had NAs for all effect sizes")
+  }
+
+  aggr
 }
 
 #' trim_and_fill

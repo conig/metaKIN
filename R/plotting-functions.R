@@ -296,7 +296,7 @@ find_author = function(data) {
 #' @param pool_size ggplot2 size value for pooled estimate
 #' @param density a bool. If True, plots densit of points.
 #' @param ... extra arguments passed to rma.uni for the purpose of trimfill.
-#' @details produces a funnel plot using ggplot2. If aggregate is set to TRUE, data is aggregated using fixed-effects meta-analysis to each cluster level (the pooled effect is not updated). If trimfill is set to TRUE, extra observations will be created as needed to achieve symmetry using metafor::trimfill. If trimfill results in new studies, the pooled effect will be updated based on the results of that meta-analysis—which is not multi-level. Note that funnel plots are often difficult to interpret, especially for multi-level meta-analysis. Note that the assumptions of trim and fill are violated if there are dependencies within the data (e.g., if data is clustered and you used multi-level meta-analysis to address this clustering).
+#' @details produces a funnel plot using ggplot2. If aggregate is set to TRUE, data is aggregated using fixed-effects meta-analysis to each cluster level (the pooled effect is not updated). If trimfill is set to TRUE, extra observations will be created as needed to achieve symmetry using metafor::trimfill. If trimfill results in new studies, the pooled effect will be updated based on the results of that meta-analysis—which is not multi-level. Note that funnel plots are often difficult to interpret, especially for multi-level meta-analysis. Note that the assumptions of trim and fill are violated if there are dependencies within the data (e.g., if data is clustered and you used multi-level meta-analysis to address this clustering). Rows with missing y or v are removed.
 #'
 #' @importFrom ggplot2 aes theme xlab geom_point coord_flip scale_x_reverse geom_line geom_segment geom_errorbar element_text stat_density_2d stat scale_fill_gradient scale_shape_discrete theme_bw
 #' @export funnel_plot
@@ -344,6 +344,7 @@ funnel_plot <- function(model,
   # Obtain aggregated and trim fill data
   if(aggregate){
   funnel_data <- aggregate_to_cluster(t_model)
+  funnel_data <- na.omit(funnel_data)
   funnel_data$type <- "aggregate"
   }
   funnel_data$trimfill <- "Studies"
