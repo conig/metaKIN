@@ -8,5 +8,6 @@
 
 library(testthat)
 library(metaKIN)
+library(data.table
 
 test_check("metaKIN")

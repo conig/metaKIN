@@ -19,19 +19,28 @@ just_estimates <- function(x){
 #' moderator_info
 #' @param x meta_list model
 #' @param include_tau2 bool. should tau2 be included?
+#' @param store_var if not NULL, include store_var
 
-moderator_info <- function(x, include_tau2 = FALSE){
-  overview <-
-    data.table::data.table(mlm_overview(x, include_tau2 = include_tau2))[, moderator_level := FALSE]
-  slopes <- just_estimates(x)
-  slopes$moderator_level = TRUE
-  slopes <- merge(slopes, x$k_n, by = "moderation", all.x = TRUE, sort = FALSE)
-  out <- data.table::rbindlist(list(overview, slopes), fill = TRUE)
-  out$model <- overview$moderation
-  attr(out, "model.name") <- x$model$call$model.name
-  out
+moderator_info <-
+  function(x,
+           include_tau2 = FALSE,
+           store_var = NULL) {
+    overview <-
+      data.table::data.table(mlm_overview(x, include_tau2 = include_tau2, store_var = store_var))[, moderator_level := FALSE]
+    slopes <- just_estimates(x)
+    slopes$moderator_level = TRUE
+    slopes <-
+      merge(slopes,
+            x$k_n,
+            by = "moderation",
+            all.x = TRUE,
+            sort = FALSE)
+    out <- data.table::rbindlist(list(overview, slopes), fill = TRUE)
+    out$model <- overview$moderation
+    attr(out, "model.name") <- x$model$call$model.name
+    out
 
-}
+  }
 
 #' format_nicely
 #'
@@ -50,6 +59,7 @@ moderator_info <- function(x, include_tau2 = FALSE){
 #' @param stars should significance stars be included for factor levels?
 #' @param slope_p if TRUE slope p-values are included
 #' @param replace a vector with names included. gsub will be applied to the moderation column such that the vector's names are replaced with the vector's contents
+#' @param store_var character. if store_var was used in moderate, those results can be presented by providing the name of the desired variable
 #' @import data.table
 #' @export
 
@@ -66,7 +76,8 @@ format_nicely = function(meta_list,
                          include_i2 = FALSE,
                          include_tau2 = FALSE,
                          stars = FALSE,
-                         replace = c("_" = " ")) {
+                         replace = c("_" = " "),
+                         store_var = NULL) {
   call <- match.call()
   if(is.null(transf)){
     transf <- function(x) x
@@ -76,11 +87,12 @@ format_nicely = function(meta_list,
   }
 
   baseline <-
-    cbind(mlm_overview(meta_list$models[[1]], include_tau2 = TRUE),
+    cbind(mlm_overview(meta_list$models[[1]], include_tau2 = TRUE, store_var = store_var),
           just_estimates(meta_list$models[[1]]))
 
   moderators <-
-    lapply(meta_list$models[2:length(meta_list$models)], function(m) moderator_info(m, include_tau2 = TRUE))
+    lapply(meta_list$models[2:length(meta_list$models)], function(m)
+      moderator_info(m, include_tau2 = TRUE, store_var = store_var))
 
   tab <-
     data.table::rbindlist(append(list(baseline), moderators), fill = TRUE)
@@ -117,6 +129,7 @@ format_nicely = function(meta_list,
     Moderation = moderation,
     k = digits(k, 0),
     n = digits(n, 0),
+    store_var,
     Estimate_formatted,
     Estimate,
     SE,
@@ -151,6 +164,10 @@ format_nicely = function(meta_list,
   if(!include_tau2){
     tab$"$\\tau^2_{(2)}$" <- NULL
     tab$"$\\tau^2_{(3)}$" <- NULL
+  }
+
+  if(!is.null(store_var)){
+    data.table::setnames(tab, "store_var", store_var)
   }
 
   if(!slope_p) tab$`$p$` <- NULL

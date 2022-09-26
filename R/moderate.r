@@ -15,10 +15,18 @@ moderation_instructions = function(...){
 #' @param m a meta3 object
 #' @param ... a named list of moderators
 #' @param moderators You can feed a named character vector for consistent moderators across models
-#' @param na.adjust a bool. Should the baseline model be adjusted to use the same data as a moderated model when missing covariate data is present
+#' @param na.adjust a bool. Should the baseline model be adjusted to use the same data as a moderated model when
+#'  missing covariate data is present
+#' @param store_var a list containing expressions named 'within', and 'between'. See details...
+#' @details
+#'
+#' @section store_var
+#' Sometimes features about the dataset which underlies a model are not included in the meta-analysis but are of interest. For example, it is sometimes desirable to report the number of participants included in a meta-analytic model. In such cases the argument 'store_var' can help. store_var needs to be provided a list with two named objects 'within' and 'between'. Each object must contain an expression. For within, this expression is passed (minus the `~`) to data.table to be evaluated by cluster. E.g., ~ max(n, na.rm = TRUE). The variable of interest must be specified in 'within'. Between then operates on those results. `.` must be used as a stand-in for the results returned by within. For example, to take the max of all n by cluster, and then to sum the results, the following store_var code can be used:
+#' store_var = list(within = ~ max(n, na.rm = TRUE), between = ~ sum(., na.rm = TRUE)). The results of these two functions are saved in an attribute ("store_var") in the output mlm models.
+#'
 #' @export
 
-moderate = function(m,...,moderators = NULL, na.adjust = TRUE){
+moderate = function(m,...,moderators = NULL, na.adjust = TRUE, store_var = NULL){
   call = match.call()
   # Safety checks ----------------------------------
   if(!methods::is(m, "meta3")) stop("Can only use on meta3 objects")
@@ -39,10 +47,22 @@ moderate = function(m,...,moderators = NULL, na.adjust = TRUE){
 
   models <- lapply(seq_along(elip), function(x) {
     moderated_model <-
-      mlm(m, formula = elip[x], model.name = names(elip)[x], .envir = parent_envir, na.adjust = na.adjust)
+      mlm(
+        m,
+        formula = elip[x],
+        model.name = names(elip)[x],
+        .envir = parent_envir,
+        na.adjust = na.adjust,
+        store_var = store_var
+      )
     attr(moderated_model, "Baseline") <- FALSE
     moderated_model
   })
+
+  if (!is.null(store_var)) {
+    attr(m, "store_var") <-
+      mlm_storevar(m, .envir = parent.frame(), store_var)
+  }
 
   models <- append(list(m), models)
   names(models) = c("Baseline",names(elip))
@@ -251,7 +271,7 @@ round_p <- function(p, n = 3, stars = c(), leading.zero = T, apa_threshold = 0.0
 
 }
 
-mlm_overview = function(x, include_tau2 = FALSE) {
+mlm_overview = function(x, include_tau2 = FALSE, store_var = NULL) {
   if (methods::is(x, "metalm")) {
     model_summary = summary(x)$summary
     Pval = x$anova$p[2]
@@ -310,6 +330,9 @@ mlm_overview = function(x, include_tau2 = FALSE) {
     fixed_tau = fixed_tau,
     LRT = LRT
   )
+  if(!is.null(store_var)){
+  out$store_var <- attr(x, "store_var")
+  }
 
   if(!include_tau2){
     out$Tau2_2 <- NULL

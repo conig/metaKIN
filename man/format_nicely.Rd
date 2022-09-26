@@ -18,7 +18,8 @@ format_nicely(
   include_i2 = FALSE,
   include_tau2 = FALSE,
   stars = FALSE,
-  replace = c(`_` = " ")
+  replace = c(`_` = " "),
+  store_var = NULL
 )
 }
 \arguments{
@@ -49,6 +50,8 @@ format_nicely(
 \item{stars}{should significance stars be included for factor levels?}
 
 \item{replace}{a vector with names included. gsub will be applied to the moderation column such that the vector's names are replaced with the vector's contents}
+
+\item{store_var}{character. if store_var was used in moderate, those results can be presented by providing the name of the desired variable}
 }
 \description{
 Formats a list of moderated meta3 objects into a data.frame which can be used as a table in a LaTex document

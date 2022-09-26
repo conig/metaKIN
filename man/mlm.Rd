@@ -4,7 +4,14 @@
 \alias{mlm}
 \title{mlm}
 \usage{
-mlm(m, formula, model.name = NULL, .envir = parent.frame(), na.adjust = TRUE)
+mlm(
+  m,
+  formula,
+  model.name = NULL,
+  .envir = parent.frame(),
+  na.adjust = TRUE,
+  store_var = NULL
+)
 }
 \arguments{
 \item{m}{meta3 object}
@@ -16,6 +23,8 @@ mlm(m, formula, model.name = NULL, .envir = parent.frame(), na.adjust = TRUE)
 \item{.envir}{the environment to run in}
 
 \item{na.adjust}{a bool. Should the baseline model be adjusted to use the same data as a moderated model when missing covariate data is present}
+
+\item{store_var}{a function which will be returned on data object by cluster. Useful for storing variable information such as number of participants}
 }
 \description{
 Meta regression for meta3 objects

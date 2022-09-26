@@ -185,9 +185,10 @@ try_even_harder = function(model, extraTries = 25) {
 #' @param model.name String. Name your model (optional)
 #' @param .envir the environment to run in
 #' @param na.adjust a bool. Should the baseline model be adjusted to use the same data as a moderated model when missing covariate data is present
+#' @param store_var a function which will be returned on data object by cluster. Useful for storing variable information such as number of participants
 #' @export
 
-mlm <- function(m, formula, model.name = NULL, .envir = parent.frame(), na.adjust = TRUE){
+mlm <- function(m, formula, model.name = NULL, .envir = parent.frame(), na.adjust = TRUE, store_var = NULL){
   formula = as.character(formula)[as.character(formula) != "~"]
   formula <- gsub("^~","",formula)
 
@@ -231,6 +232,8 @@ mlm <- function(m, formula, model.name = NULL, .envir = parent.frame(), na.adjus
 
   m_out <- eval(call, envir = .envir)
 
+
+
   status <- m_out$mx.fit$output$status[[1]]
   SEs <- summary(m_out)$coefficients["Std.Error"]
   missing_SEs <- any(is.na(SEs))
@@ -250,7 +253,7 @@ mlm <- function(m, formula, model.name = NULL, .envir = parent.frame(), na.adjus
   if(row_mismatch | !is.null(tau_fixed)){
 
     if(row_mismatch){
-    warning("ANOVA: baseline model has been adjusted due to missing data in covariance matrix")
+    cli::cli_alert_info("anova(): baseline model has been adjusted due to missing data in covariance matrix")
     }
     adjusted_dat <- m_out$data
     new_baseline_call <- as.list(m$call)
@@ -278,6 +281,8 @@ mlm <- function(m, formula, model.name = NULL, .envir = parent.frame(), na.adjus
     baseline <- m
   }
 
+  # Add in store_data
+
   out <- list(
     model = m_out,
     anova = stats::anova(m_out, baseline),
@@ -285,10 +290,38 @@ mlm <- function(m, formula, model.name = NULL, .envir = parent.frame(), na.adjus
     k_n = KN
   )
 
+  if(!is.null(store_var)){
+    attr(out, "store_var") <- mlm_storevar(m_out, .envir = .envir, store_var)
+  }
+
   class(out) <- "metalm"
   out
 
+}
+
+mlm_storevar <- function(model, .envir, instructions){
+
+  model_data <- eval(model$call$data, envir = .envir)
+  model_data <- data.table(model_data[row.names(model$data),])
+
+  # Process within function by cluster
+
+  within_results <-
+    model_data[, list(. = eval(parse(text = as.character(
+      instructions$within
+    )[2]))), by = eval(as.character(model$call$cluster))]
+
+  # Process between function across clusters
+  out <- within_results[, eval(parse(text = as.character(instructions$between)[2]))]
+  if (length(out) > 1) {
+    cli::cli_alert_danger(glue::glue("The length of store_var is {length(out)}"))
+
+   cli::cli_abort(
+        "The result of store_var must be length 1"
+    )
   }
+  out
+}
 
 #' print.metalm
 #'

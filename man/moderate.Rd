@@ -4,7 +4,7 @@
 \alias{moderate}
 \title{moderate}
 \usage{
-moderate(m, ..., moderators = NULL, na.adjust = TRUE)
+moderate(m, ..., moderators = NULL, na.adjust = TRUE, store_var = NULL)
 }
 \arguments{
 \item{m}{a meta3 object}
@@ -13,7 +13,10 @@ moderate(m, ..., moderators = NULL, na.adjust = TRUE)
 
 \item{moderators}{You can feed a named character vector for consistent moderators across models}
 
-\item{na.adjust}{a bool. Should the baseline model be adjusted to use the same data as a moderated model when missing covariate data is present}
+\item{na.adjust}{a bool. Should the baseline model be adjusted to use the same data as a moderated model when
+missing covariate data is present}
+
+\item{store_var}{a list containing expressions named 'within', and 'between'. See details...}
 }
 \description{
 Create a list of meta3 objects moderated by predictors

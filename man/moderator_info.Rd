@@ -4,12 +4,14 @@
 \alias{moderator_info}
 \title{moderator_info}
 \usage{
-moderator_info(x, include_tau2 = FALSE)
+moderator_info(x, include_tau2 = FALSE, store_var = NULL)
 }
 \arguments{
 \item{x}{meta_list model}
 
 \item{include_tau2}{bool. should tau2 be included?}
+
+\item{store_var}{if not NULL, include store_var}
 }
 \description{
 moderator_info
