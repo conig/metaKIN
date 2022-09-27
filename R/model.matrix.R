@@ -301,7 +301,7 @@ mlm <- function(m, formula, model.name = NULL, .envir = parent.frame(), na.adjus
 
 mlm_storevar <- function(model, .envir, instructions){
 
-  model_data <- eval(model$call$data, envir = .envir)
+  model_data <- data.frame(eval(model$call$data, envir = .envir), check.names = FALSE)
   model_data <- data.table(model_data[row.names(model$data),])
 
   # Process within function by cluster
