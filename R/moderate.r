@@ -18,9 +18,9 @@ moderation_instructions = function(...){
 #' @param na.adjust a bool. Should the baseline model be adjusted to use the same data as a moderated model when
 #'  missing covariate data is present
 #' @param store_var a list containing expressions named 'within', and 'between'. See details...
-#' @details
+#' @details Moderate runs a series of metaKIN::mlm models. When missing data is present in a moderator matrix, it is also removed from the baseline model for a given comparison.
 #'
-#' @section store_var
+#' @section store_var:
 #' Sometimes features about the dataset which underlies a model are not included in the meta-analysis but are of interest. For example, it is sometimes desirable to report the number of participants included in a meta-analytic model. In such cases the argument 'store_var' can help. store_var needs to be provided a list with two named objects 'within' and 'between'. Each object must contain an expression. For within, this expression is passed (minus the `~`) to data.table to be evaluated by cluster. E.g., ~ max(n, na.rm = TRUE). The variable of interest must be specified in 'within'. Between then operates on those results. `.` must be used as a stand-in for the results returned by within. For example, to take the max of all n by cluster, and then to sum the results, the following store_var code can be used:
 #' store_var = list(within = ~ max(n, na.rm = TRUE), between = ~ sum(., na.rm = TRUE)). The results of these two functions are saved in an attribute ("store_var") in the output mlm models.
 #'

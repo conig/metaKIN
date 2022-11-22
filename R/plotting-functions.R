@@ -408,12 +408,14 @@ funnel_plot <- function(model,
   if (density) {
     fp <- fp +
       ggplot2::stat_density_2d(
-        ggplot2::aes(fill = stat(level)),
+        ggplot2::aes(fill = after_stat(level),
+                     x = se, y = y),
         bins = 7,
         colour = "white",
         geom = "polygon",
         alpha = 0.2,
-        show.legend = F
+        show.legend = F,
+        inherit.aes = FALSE
       ) +
       ggplot2::scale_fill_gradient(low = "grey60", high = "grey30")
   }

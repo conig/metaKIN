@@ -1,3 +1,7 @@
+# metaKIN 0.2.1
+
+* Updated `funnel_plot` to work with latest ggplot2 interface
+
 # metaKIN 0.2.0
 
 * Added a `NEWS.md` file to track changes to the package.
