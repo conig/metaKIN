@@ -3,7 +3,7 @@
   dat <- metaSEM::Bornmann07
   dat$n <- seq_len(nrow(dat))
 
-  m0 <- meta3(logOR, v, cluster = Cluster, data = dat)
+  m0 <- meta3L(logOR, v, cluster = Cluster, data = dat)
   mod <- m0 |>
   moderate(
     Discipline = ~ Discipline - 1,
@@ -16,7 +16,7 @@
   dat_missing <- dat
   dat_missing$Discipline[dat_missing$Cluster == 1] <- NA
 
-  m0_missing <- meta3(logOR, v, cluster = Cluster, data = dat_missing)
+  m0_missing <- meta3L(logOR, v, cluster = Cluster, data = dat_missing)
   mod_missing <- m0_missing |>
   moderate(
     Discipline = ~ Discipline - 1,

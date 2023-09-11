@@ -20,5 +20,5 @@ get_matrix_long(y, v, cluster, x, data, ...)
 \item{...}{A bin for additional arguments}
 }
 \description{
-recreates the long matrix from meta3
+recreates the long matrix from meta3L
 }

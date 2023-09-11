@@ -179,8 +179,8 @@ try_even_harder = function(model, extraTries = 25) {
 
 #' mlm
 #'
-#' Meta regression for meta3 objects
-#' @param m meta3 object
+#' Meta regression for meta3L objects
+#' @param m meta3L object
 #' @param formula formula passed to model.matrix
 #' @param model.name String. Name your model (optional)
 #' @param .envir the environment to run in
@@ -195,8 +195,8 @@ mlm <- function(m, formula, model.name = NULL, .envir = parent.frame(), na.adjus
     formula <-
       paste0(m$call$y, " + ", m$call$v, " + as.numeric(as.factor(",m$call$cluster, ")) ~ ", formula)
 
-  # check meta3 used
-  if(!methods::is(m, "meta3")) stop("Only meta3 models are supported. To perform a 2-level meta-analysis use the meta3 argument: RE3.constraints = 0")
+  # check meta3L used
+  if(!methods::is(m, "meta3L")) stop("Only meta3L models are supported. To perform a 2-level meta-analysis use the meta3L argument: RE3.constraints = 0")
 
   # check intercept constraints are not zero
   if (!is.null(m$call$intercept.constraints)) {
@@ -511,14 +511,14 @@ dummy_matrix = function(x, levels = NULL, pattern = ",") {
   return(out)
 }
 
-#' meta3_OK
+#' meta3L_OK
 #'
-#' Check whether meta3 status is OK
-#' @param m meta3 model
+#' Check whether meta3L status is OK
+#' @param m meta3L model
 #' @details This function looks up the OpenMx status code. If 0 or 1 returns TRUE, else returns FALSE
 #' @export
 
-meta3_OK <- function(m) {
-  methods::is(m, "meta3")
+meta3L_OK <- function(m) {
+  methods::is(m, "meta3L")
   m$mx.fit$output$status$code[[1]] %in% c(0, 1)
 }

@@ -22,7 +22,7 @@ funnel_plot(
 )
 }
 \arguments{
-\item{model}{an object belonging to the class 'meta_list'. These objects are created by the function 'meta3_moderation'.}
+\item{model}{an object belonging to the class 'meta_list'. These objects are created by the function 'meta3L_moderation'.}
 
 \item{xlab}{a character string. Label for the x-axis.}
 

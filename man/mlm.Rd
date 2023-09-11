@@ -14,7 +14,7 @@ mlm(
 )
 }
 \arguments{
-\item{m}{meta3 object}
+\item{m}{meta3L object}
 
 \item{formula}{formula passed to model.matrix}
 
@@ -27,5 +27,5 @@ mlm(
 \item{store_var}{a function which will be returned on data object by cluster. Useful for storing variable information such as number of participants}
 }
 \description{
-Meta regression for meta3 objects
+Meta regression for meta3L objects
 }

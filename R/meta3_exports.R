@@ -1,6 +1,6 @@
 #' get_matrix_long
 #'
-#' recreates the long matrix from meta3
+#' recreates the long matrix from meta3L
 #' @param y A vector of k studies of effect size.
 #' @param v A vector of k studies of sampling variance.
 #' @param cluster A vector of k characters or numbers indicating the clusters.

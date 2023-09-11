@@ -15,7 +15,7 @@ forest_plot_data(
 )
 }
 \arguments{
-\item{model}{meta3 or meta_list}
+\item{model}{meta3L or meta_list}
 
 \item{moderators}{a string of moderators}
 

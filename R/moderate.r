@@ -11,8 +11,8 @@ moderation_instructions = function(...){
 
 #' moderate
 #'
-#' Create a list of meta3 objects moderated by predictors
-#' @param m a meta3 object
+#' Create a list of meta3L objects moderated by predictors
+#' @param m a meta3L object
 #' @param ... a named list of moderators
 #' @param moderators You can feed a named character vector for consistent moderators across models
 #' @param na.adjust a bool. Should the baseline model be adjusted to use the same data as a moderated model when
@@ -29,7 +29,7 @@ moderation_instructions = function(...){
 moderate = function(m,...,moderators = NULL, na.adjust = TRUE, store_var = NULL){
   call = match.call()
   # Safety checks ----------------------------------
-  if(!methods::is(m, "meta3")) stop("Can only use on meta3 objects")
+  if(!methods::is(m, "meta3L")) stop("Can only use on meta3L objects")
   if(!m$mx.fit$output$status[[1]] %in% c(0, 1)) stop("Baseline model Mx status indicates failure to converge")
 
   m$call$model.name = "Baseline"

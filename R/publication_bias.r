@@ -12,8 +12,8 @@ FPP <- function(m, transf = function(x) x, round = 2, alpha = .05){
   m <- m$models$Baseline
   }
 
- if(!methods::is(m, "meta3")){
-   stop("This function will only work with meta3 or metaKIN objects as inputs")
+ if(!methods::is(m, "meta3L")){
+   stop("This function will only work with meta3L or metaKIN objects as inputs")
  }
 
   dat <- m$data
@@ -73,7 +73,7 @@ FPP <- function(m, transf = function(x) x, round = 2, alpha = .05){
 #' aggregate_to_cluster
 #'
 #' Aggregate effect sizes to cluster
-#' @param model a meta3 model
+#' @param model a meta3L model
 #' @details multiple effect sizes per cluster are aggregated using a fixed effects meta-analysis
 
 aggregate_to_cluster <- function(model) {
@@ -115,8 +115,8 @@ aggregate_to_cluster <- function(model) {
 
 #' trim_and_fill
 #'
-#' Perform trim and fill for meta3 objects.
-#' @param model a model of class meta3
+#' Perform trim and fill for meta3L objects.
+#' @param model a model of class meta3L
 #' @param aggregate should data be aggregated first?
 #' @param ... additional arguments passed to metafor::rma.uni
 #' @details uses data aggregated by cluster.

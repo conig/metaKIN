@@ -7,7 +7,7 @@
 trim_and_fill(model, aggregate = TRUE, ...)
 }
 \arguments{
-\item{model}{a model of class meta3}
+\item{model}{a model of class meta3L}
 
 \item{aggregate}{should data be aggregated first?}
 
@@ -17,7 +17,7 @@ trim_and_fill(model, aggregate = TRUE, ...)
 rma.uni.trimfill
 }
 \description{
-Perform trim and fill for meta3 objects.
+Perform trim and fill for meta3L objects.
 }
 \details{
 uses data aggregated by cluster.

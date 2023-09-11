@@ -54,5 +54,5 @@ format_nicely(
 \item{store_var}{character. if store_var was used in moderate, those results can be presented by providing the name of the desired variable}
 }
 \description{
-Formats a list of moderated meta3 objects into a data.frame which can be used as a table in a LaTex document
+Formats a list of moderated meta3L objects into a data.frame which can be used as a table in a LaTex document
 }

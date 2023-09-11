@@ -7,7 +7,7 @@
 moderate(m, ..., moderators = NULL, na.adjust = TRUE, store_var = NULL)
 }
 \arguments{
-\item{m}{a meta3 object}
+\item{m}{a meta3L object}
 
 \item{...}{a named list of moderators}
 
@@ -19,7 +19,7 @@ missing covariate data is present}
 \item{store_var}{a list containing expressions named 'within', and 'between'. See details...}
 }
 \description{
-Create a list of meta3 objects moderated by predictors
+Create a list of meta3L objects moderated by predictors
 }
 \details{
 Moderate runs a series of metaKIN::mlm models. When missing data is present in a moderator matrix, it is also removed from the baseline model for a given comparison.

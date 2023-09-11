@@ -38,7 +38,7 @@ report_q = function(x,
 #' report_n
 #'
 #' Get number of studies and effect sizes of a baseline model
-#' @param x meta3 model
+#' @param x meta3L model
 #' @param rmarkdown if TRUE, rmarkdown code is produced which can be edited
 
 report_n = function(x, rmarkdown = FALSE){
@@ -278,7 +278,7 @@ get_sig_moderators = function(x, p = 0.05){
 #' get_val
 #'
 #' Return values
-#' @param model the meta3 or meta_list model to extract
+#' @param model the meta3L or meta_list model to extract
 #' @param val character vector of values to extract
 #' @param moderator character string of moderator to extract from. Defaults to NULL
 #' @param round 2 number of digits

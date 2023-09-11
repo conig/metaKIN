@@ -7,7 +7,7 @@
 get_val(model, val, moderator = NULL, round = 2, transf = function(x) x)
 }
 \arguments{
-\item{model}{the meta3 or meta_list model to extract}
+\item{model}{the meta3L or meta_list model to extract}
 
 \item{val}{character vector of values to extract}
 

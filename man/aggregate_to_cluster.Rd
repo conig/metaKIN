@@ -7,7 +7,7 @@
 aggregate_to_cluster(model)
 }
 \arguments{
-\item{model}{a meta3 model}
+\item{model}{a meta3L model}
 }
 \description{
 Aggregate effect sizes to cluster

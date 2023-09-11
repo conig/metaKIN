@@ -26,7 +26,7 @@ add_diamond = function(plot, data, fill = "grey20", colour = NA) {
 #' forest_plot_data
 #'
 #' Create data ready for the creation of a forest plot
-#' @param model meta3 or meta_list
+#' @param model meta3L or meta_list
 #' @param moderators a string of moderators
 #' @param transf function to transform results
 #' @param baseline_name string to rename baseline model
@@ -42,11 +42,11 @@ forest_plot_data <- function(model,
                              year,
                              envir = parent.frame()) {
   # Input checks
-  if (!methods::is(model, "meta3") &
+  if (!methods::is(model, "meta3L") &
       !methods::is(model, "meta_list"))
-    stop("model must be meta3 or meta_list")
+    stop("model must be meta3L or meta_list")
 
-  if (methods::is(model, "meta3"))
+  if (methods::is(model, "meta3L"))
     model <- moderate(model)
 
   # Extract data
@@ -282,7 +282,7 @@ find_author = function(data) {
 #'
 #' This function is used for plotting funnel plots
 #'
-#' @param model an object belonging to the class 'meta_list'. These objects are created by the function 'meta3_moderation'.
+#' @param model an object belonging to the class 'meta_list'. These objects are created by the function 'meta3L_moderation'.
 #' @param xlab a character string. Label for the x-axis.
 #' @param ylab a character string. Label for the y-axis.
 #' @param font a character string. Set's font family. Defaults to times new roman ('serif')
@@ -468,13 +468,13 @@ funnel_plot <- function(model,
 #'
 #' Use this function to resize forest plots in rmarkdown.
 #'
-#' @param meta3_plot a moderated meta3 plot
+#' @param meta3L_plot a moderated meta3L plot
 #' @param slope the numeric value to multiple number of rows by
 #' @param intercept the numeric constant
 #' @export forest_height
 
-forest_height = function(meta3_plot, slope = .12, intercept = .52){
-  length(unique(meta3_plot$data$cluster)) * slope + intercept
+forest_height = function(meta3L_plot, slope = .12, intercept = .52){
+  length(unique(meta3L_plot$data$cluster)) * slope + intercept
 }
 
 #' moderation_matrix

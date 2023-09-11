@@ -44,7 +44,7 @@ moderator_info <-
 
 #' format_nicely
 #'
-#' Formats a list of moderated meta3 objects into a data.frame which can be used as a table in a LaTex document
+#' Formats a list of moderated meta3L objects into a data.frame which can be used as a table in a LaTex document
 #' @param meta_list a meta_list object
 #' @param round a scalar.
 #' @param transf a function. If provided will transform effects and confidence intervals.

@@ -7,7 +7,7 @@
 report_n(x, rmarkdown = FALSE)
 }
 \arguments{
-\item{x}{meta3 model}
+\item{x}{meta3L model}
 
 \item{rmarkdown}{if TRUE, rmarkdown code is produced which can be edited}
 }

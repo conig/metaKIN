@@ -4,10 +4,10 @@
 \alias{forest_height}
 \title{forest_height}
 \usage{
-forest_height(meta3_plot, slope = 0.12, intercept = 0.52)
+forest_height(meta3L_plot, slope = 0.12, intercept = 0.52)
 }
 \arguments{
-\item{meta3_plot}{a moderated meta3 plot}
+\item{meta3L_plot}{a moderated meta3L plot}
 
 \item{slope}{the numeric value to multiple number of rows by}
 
