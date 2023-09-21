@@ -24,6 +24,17 @@ meta_matrix <- function(formula, data, intercept = FALSE, warn = TRUE){
   matrx <- model.matrix2(eval(parse(text = formula)), data = model_frame)
   matrx.invariant <- model.matrix2(eval(parse(text = formula)), data = matrix.invariant)
 
+  if ("" %in% colnames(matrx.invariant))
+    stop(
+      cli::format_error(
+        c(
+          "Misspecified meta_matrix design",
+          "i" = "Variables cannot include zero-length strings",
+          "x" = "Variable '{names(attr(matrx.invariant,'contrasts'))}' includes value: ''"
+        )
+      )
+    )
+
   if(!intercept & any(grepl("(Intercept)",colnames(matrx)))){
     matrx <- subset(matrx, select = -`(Intercept)`)
     matrx.invariant <- subset(matrx.invariant, select = -`(Intercept)`)
