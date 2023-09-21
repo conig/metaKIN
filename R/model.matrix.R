@@ -29,7 +29,7 @@ meta_matrix <- function(formula, data, intercept = FALSE, warn = TRUE){
       cli::format_error(
         c(
           "Misspecified meta_matrix design",
-          "i" = "Variables cannot include zero-length strings",
+          "i" = "Variables cannot include zero-length strings, replace with NA or recode",
           "x" = "Variable '{names(attr(matrx.invariant,'contrasts'))}' includes value: ''"
         )
       )
