@@ -38,14 +38,14 @@ have their grant proposals approved.
 library(metaKIN)
 ```
 
-    ## meta[1m[31mKIN[39m[22m 0.1.3
+    ## meta[1m[31mKIN[39m[22m 0.3.0
     ## Under active development.
     ## Report bugs: https://github.com/conig/metaKIN/issues
 
 ``` r
 dat <- metaSEM::Bornmann07
 
-m0 <- meta3(
+m0 <- meta3L(
   y = logOR,
   v = v,
   cluster = Cluster,
@@ -57,7 +57,7 @@ summary(m0)
 
     ## 
     ## Call:
-    ## meta3(y = logOR, v = v, cluster = Cluster, data = dat)
+    ## meta3L(y = logOR, v = v, cluster = Cluster, data = dat)
     ## 
     ## 95% confidence intervals: z statistic approximation (robust=FALSE)
     ## Coefficients:
@@ -284,22 +284,12 @@ report(moderation_object2, rmarkdown = FALSE)
 
 \[1\] “Twenty-one studies (including sixty-six effect sizes) reported
 data which could be pooled. Inspecting the Q statistic revealed
-significant heterogeneity
-![Q](https://latex.codecogs.com/png.image?%5Cdpi%7B110%7D&space;%5Cbg_white&space;Q "Q")(65)
-= 221.28,
-![p](https://latex.codecogs.com/png.image?%5Cdpi%7B110%7D&space;%5Cbg_white&space;p "p")
-\< 0.001. The pooled effect size was -0.10 \[95% CI -0.18, -0.02\]. The
-heterogeneity at level 2 was 15.68%. The heterogeneity at level 3 was
-58.39%. The covariates which significantly moderated the baseline model
-were ‘Type’
-(![R^2\_{(2)}](https://latex.codecogs.com/png.image?%5Cdpi%7B110%7D&space;%5Cbg_white&space;R%5E2_%7B%282%29%7D "R^2_{(2)}")
-= 6.93%;
-![R^2\_{(3)}](https://latex.codecogs.com/png.image?%5Cdpi%7B110%7D&space;%5Cbg_white&space;R%5E2_%7B%283%29%7D "R^2_{(3)}")
-= 79.43%), and ‘Country’
-(![R^2\_{(2)}](https://latex.codecogs.com/png.image?%5Cdpi%7B110%7D&space;%5Cbg_white&space;R%5E2_%7B%282%29%7D "R^2_{(2)}")
-= 12.09%;
-![R^2\_{(3)}](https://latex.codecogs.com/png.image?%5Cdpi%7B110%7D&space;%5Cbg_white&space;R%5E2_%7B%283%29%7D "R^2_{(3)}")
-= 66.06%).”
+significant heterogeneity $Q$(65) = 221.28, $p$ \< 0.001. The pooled
+effect size was -0.10 \[95% CI -0.18, -0.02\]. The heterogeneity at
+level 2 was 15.68%. The heterogeneity at level 3 was 58.39%. The
+covariates which significantly moderated the baseline model were ‘Type’
+($R^2_{(2)}$ = 6.93%; $R^2_{(3)}$ = 79.43%), and ‘Country’ ($R^2_{(2)}$
+= 12.09%; $R^2_{(3)}$ = 66.06%).”
 
 ## APA table
 
