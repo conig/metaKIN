@@ -321,7 +321,7 @@ plot(
   moderation_object,
   author = "study_author",
   year = "study_year",
-  transform = exp,
+  transf = exp,
   xlab = "OR"
 )
 ```
