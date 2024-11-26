@@ -5,7 +5,7 @@
 #' @param transf function with which to transform results
 #' @param round number of digits for rounding
 #' @param alpha the alpha threshold used in PET-PEESE. Defaults to 0.1 \(10\% as per Stanley 2017\)
-#' @details PET-PEESE uses meta-regression in order to adjust estimates for publication bias. When there is publication bias the sampling variance becomes correlated with effect size. By using the standard error (PET) or the sampling variance (PEESE) as moderators in a meta-regression, estimates (the intercept) can be made which partial out the correlation between effect size and variance. PET-PEESE first tests whether the intercept is a significant when controlling for the standard error of effects (p < 0.05) predictor of effect size. If it is, PEESE is used. Otherwise, PET is used.
+#' @details PET-PEESE uses meta-regression in order to adjust estimates for publication bias. When there is publication bias the sampling variance becomes correlated with effect size. By using the standard error (PET) or the sampling variance (PEESE) as moderators in a meta-regression, estimates (the intercept) can be made which partial out the correlation between effect size and variance. PET-PEESE first tests whether the intercept is a significant when controlling for the standard error of effects (p < 0.05) predictor of effect size. If it is, PEESE is used. Otherwise, PET is used. Note the publication bias test fits the standard error as a moderator in the model.
 
 FPP <- function(m, transf = function(x) x, round = 2, alpha = .05){
   if(methods::is(m, "meta_list")){
