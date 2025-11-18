@@ -149,8 +149,13 @@ format_nicely = function(meta_list,
   }
 
   if (is.null(transf_name)) {
-    transf_name <- as.character(call$transf)
-    transf_name <- paste0(transf_name, " [95\\% CI]")
+    if (!is.null(call$transf)) {
+      # deparse can return multi-line character vectors; collapse to a single label
+      transf_label <- paste(deparse(call$transf), collapse = " ")
+    } else {
+      transf_label <- "transf"
+    }
+    transf_name <- paste0(transf_label, " [95\\% CI]")
 
   }
 
