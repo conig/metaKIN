@@ -167,7 +167,19 @@ forest_plot <- function(
   envir = parent.frame(),
   return_data = FALSE
 ) {
-  mods <- unlist(list(...))
+  dots <- list(...)
+  dot_names <- names(dots)
+
+  if (!is.null(dot_names) && any(nzchar(dot_names))) {
+    stop(
+      sprintf(
+        "Unused argument(s): %s. Provide moderators as unnamed character values.",
+        paste(unique(dot_names[nzchar(dot_names)]), collapse = ", ")
+      )
+    )
+  }
+
+  mods <- unlist(dots, use.names = FALSE)
 
   if (is.null(transf)) {
     transf <- function(x) {
