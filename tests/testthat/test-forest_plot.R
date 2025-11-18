@@ -69,3 +69,28 @@ test_that("Moderators in forest_plot works", {
   testthat::expect_true("Country" %in% plot_i$data$moderation)
   dat
 })
+
+test_that("Missspelt moderators in forest_plot throws error", {
+  require(metaKIN)
+  dat <- metaSEM::Bornmann07
+  dat$study_year <- stringr::str_extract(dat$Study, "[0-9]{1,4}")
+  dat$study_author <- gsub("\\s.*", "", dat$Study)
+
+  m <- meta3L(
+    logOR,
+    v,
+    cluster = Cluster,
+    data = dat
+  )
+  m_mod <- m |>
+    metaKIN::moderate(Country = ~ Country - 1)
+
+  testthat::expect_error({
+    plot_i <- metaKIN:::forest_plot(
+      m_mod,
+      "Countrry",
+      author = "study_author",
+      year = "study_year"
+    )
+  })
+})

@@ -64,6 +64,35 @@ forest_plot_data <- function(
   df$upper <- transf(df$upper)
   df$cluster <- as.character(df$cluster)
 
+  available_mods <- unique(df$moderation)
+  available_mods <- available_mods[
+    !is.na(available_mods) & available_mods != "Baseline"
+  ]
+
+  if (length(moderators) > 0) {
+    missing_mods <- setdiff(unique(moderators), available_mods)
+    if (length(missing_mods) > 0) {
+      available_msg <-
+        if (length(available_mods) > 0) {
+          paste0(
+            "Available moderators: ",
+            paste(sprintf("`%s`", available_mods), collapse = ", ")
+          )
+        } else {
+          "The supplied model does not contain any moderators."
+        }
+      stop(
+        paste0(
+          "Unknown moderator(s): ",
+          paste(sprintf("`%s`", missing_mods), collapse = ", "),
+          ". ",
+          available_msg
+        ),
+        call. = FALSE
+      )
+    }
+  }
+
   # Filter to requested moderators
   df <-
     df[
@@ -173,7 +202,7 @@ forest_plot <- function(
   if (!is.null(dot_names) && any(nzchar(dot_names))) {
     stop(
       sprintf(
-        "Unused argument(s): %s. Provide moderators as unnamed character values.",
+        "Unused argument(s): %s.",
         paste(unique(dot_names[nzchar(dot_names)]), collapse = ", ")
       )
     )
